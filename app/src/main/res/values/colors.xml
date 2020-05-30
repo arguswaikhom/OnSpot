@@ -3,4 +3,65 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+
+    <color name="grey_60">#666666</color>
+    <color name="grey_90">#263238</color>
+    <color name="grey_40">#999999</color>
+    <color name="red_400">#ef5350</color>
+    <color name="red_300">#e57373</color>
+    <color name="yellow_800">#f9a825</color>
+    <color name="grey_80">#37474f</color>
+    <color name="grey_70">#305263</color>
+    <color name="yellow_700">#fbc02d</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="grey_5">#f2f2f2</color>
+    <color name="grey_10">#e6e6e6</color>
+    <color name="light_green_400">#9ccc65</color>
+
+    <color name="blue_grey_100">#cfd8dc</color>
+    <color name="blue_grey_200">#b0bec5</color>
+    <color name="blue_grey_300">#90a4ae</color>
+    <color name="blue_grey_400">#78909c</color>
+    <color name="blue_grey_50">#eceff1</color>
+    <color name="blue_grey_500">#607d8b</color>
+    <color name="blue_grey_600">#546e7a</color>
+    <color name="blue_grey_700">#455a64</color>
+    <color name="blue_grey_800">#37474f</color>
+    <color name="blue_grey_800_overlay">#e637474f</color>
+    <color name="blue_grey_900">#263238</color>
+
+    <color name="green_100">#c8e6c9</color>
+    <color name="green_200">#a5d6a7</color>
+    <color name="green_300">#81c784</color>
+    <color name="green_400">#66bb6a</color>
+    <color name="green_50">#e8f5e9</color>
+    <color name="green_500">#4caf50</color>
+    <color name="green_600">#43a047</color>
+    <color name="green_700">#388e3c</color>
+    <color name="green_800">#2e7d32</color>
+    <color name="green_900">#1b5e20</color>
+    <color name="green_A100">#b9f6ca</color>
+    <color name="green_A200">#69f0ae</color>
+    <color name="green_A400">#00e676</color>
+    <color name="green_A700">#00c853</color>
+
+    <color name="m_blue_grey_800">#ff37474f</color>
+    <color name="m_blue_grey_900">#ff263238</color>
+    <color name="m_blue_grey_950">#ff21272b</color>
+    <color name="m_deep_teal_200">#ff80cbc4</color>
+    <color name="m_deep_teal_500">#ff008577</color>
+
+
+    <color name="coffee_100">#303030</color>
+    <color name="dark_solid">#000000</color>
+    <color name="dark_bg">#101010</color>
+    <color name="text_primary">#CCFFFFFF</color>
+    <color name="text_secondary">#99FFFFFF</color>
+    <color name="text_hint">#66FFFFFF</color>
+
+    <color name="darkAppBar">#212121</color>
+    <color name="darkBackground">#303030</color>
+    <color name="darkDialog">#424242</color>
+    <color name="black_overlay">#66000000</color>
+
 </resources>

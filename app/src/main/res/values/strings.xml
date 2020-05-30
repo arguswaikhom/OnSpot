@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">OnSpot</string>
+    <string name="content_description_shop_image">shop image</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_my_order">My Order</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_activity_shop">Shop</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="key_api">AIzaSyAvAjaMYJZ69Ky-gP8bsA5Eh8wj4d-iAEM</string>
+
+    <string name="domain">https://us-central1-crown-onspot.cloudfunctions.net</string>
+    <string name="msg_phone_verification">You will get SMS with a confirmation code to this number.</string>
+
+    <string name="ref_business">business</string>
+    <string name="ref_user">user</string>
+    <string name="ref_order">order</string>
+    <string name="sub_ref_item">item</string>
+    <string name="sub_ref_contact">contact</string>
+    <string name="sub_ref_destination">address</string>
+
+    <string name="field_device_token">deviceToken</string>
+
+    <string name="title_activity_contact">ContactActivity</string>
 </resources>
