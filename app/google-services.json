@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1028049106656",
+    "firebase_url": "https://crown-onspot.firebaseio.com",
+    "project_id": "crown-onspot",
+    "storage_bucket": "crown-onspot.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028049106656:android:6ae8386bd4875b02bc0285",
+        "android_client_info": {
+          "package_name": "com.crown.onspot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028049106656-dr08girto9jsdjllm0l8viis83ncd0nn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.crown.onspot",
+            "certificate_hash": "4c3529a965dc6b4de64b4503ff2e89dc3b15f280"
+          }
+        },
+        {
+          "client_id": "1028049106656-76vqua3ngdlntsjlep9m44olbttguu93.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU0E-KxVNQou20mi25j6l87GMvovNhQmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028049106656-76vqua3ngdlntsjlep9m44olbttguu93.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
