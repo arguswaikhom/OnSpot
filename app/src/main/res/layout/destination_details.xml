@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TextViewLabel"
+            android:text="Address" />
+
+        <TextView
+            android:id="@+id/tv_dd_address"
+            style="@style/TextViewValue"
+            tools:text="Thoubal Achouba Mayai Leikai, Thoubal, Manipur. 795138" />
+
+        <TextView
+            style="@style/TextViewLabel"
+            android:layout_marginTop="@dimen/primary_margin"
+            android:text="How to reach" />
+
+        <TextView
+            android:id="@+id/tv_dd_reach"
+            style="@style/TextViewValue"
+            tools:text="Go straight to the hell" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/iasiwg_root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_gradient_animation_list"
+    tools:context=".page.SignInActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="OnSpot"
+        android:textColor="@android:color/white"
+        android:textSize="60sp"
+        tools:ignore="HardcodedText" />
+
+    <com.shobhitpuri.custombuttons.GoogleSignInButton
+        android:id="@+id/iasiwg_sign_in_button"
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="64dp"
+        android:text="Sign in with Google"
+        app:isDarkTheme="true"
+        tools:ignore="HardcodedText" />
+
+    <ProgressBar
+        android:id="@+id/pb_iasiwg_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:indeterminateTint="@android:color/white"
+        android:indeterminateTintMode="src_atop"
+        android:visibility="invisible" />
+</RelativeLayout>
