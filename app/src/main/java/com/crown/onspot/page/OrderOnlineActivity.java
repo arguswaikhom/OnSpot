@@ -43,11 +43,11 @@ import java.util.Locale;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SelectBusinessItemActivity extends AppCompatActivity implements OnChangeShopItemCart,
+public class OrderOnlineActivity extends AppCompatActivity implements OnChangeShopItemCart,
         EventListener<QuerySnapshot> {
 
     public static final String KEY_SHOP = "SHOP";
-    private final String TAG = SelectBusinessItemActivity.class.getName();
+    private final String TAG = OrderOnlineActivity.class.getName();
     private List<ListItem> mDataset;
     private ListItemAdapter mAdapter;
     private MaterialCardView mOrderCartCV;
@@ -193,7 +193,7 @@ public class SelectBusinessItemActivity extends AppCompatActivity implements OnC
                 if (doc.get("isDeleted") == null || !((Boolean) doc.get("isDeleted"))) {
                     for (OrderItem sItem : selectedItems) {
                         if (sItem.getItemId().equals(item.getItemId())) {
-                            if (item.getStatus().equalsIgnoreCase("available")) {
+                            if (item.getStatus() == null || item.getStatus().equalsIgnoreCase("available")) {
                                 item.setQuantity(sItem.getQuantity());
                             } else {
                                 hasStatusChanged = true;
