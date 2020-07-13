@@ -55,26 +55,33 @@
             android:layout_height="match_parent"
             android:layout_marginStart="@dimen/spacing_large">
 
-            <TextView
-                android:id="@+id/tv_libi_title"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/rl"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="3"
-                android:text="Business item title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_80"
-                app:fontFamily="sans-serif-medium"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/iv_libi_description_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_info_24"
-                android:tint="@color/light_green_400"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/tv_libi_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@+id/iv_libi_description_info"
+                    android:maxLines="3"
+                    android:text="Business item title"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_80"
+                    app:fontFamily="sans-serif-medium" />
+
+                <ImageView
+                    android:id="@+id/iv_libi_description_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_baseline_info_24"
+                    android:tint="@color/light_green_400" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_libi_category"
@@ -86,7 +93,7 @@
                 android:textColor="@color/grey_40"
                 app:fontFamily="sans-serif-medium"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_libi_title" />
+                app:layout_constraintTop_toBottomOf="@+id/rl" />
 
             <RatingBar
                 android:id="@+id/rb_libi_rating_bar"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.crown.onspot">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,7 +19,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Material">
+        android:theme="@style/Material"
+        tools:replace="android:icon,android:theme">
+        <activity
+            android:name=".page.ContactUsActivity"
+            android:label="Contact Us"
+            android:theme="@style/Material.NoActionBar.GreyStatusBar" />
         <activity
             android:name=".page.PhoneVerificationActivity"
             android:theme="@style/Material.NoActionBar" />
@@ -27,7 +33,7 @@
             android:label="Order summary"
             android:theme="@style/Material.NoActionBar.GreyStatusBar" />
         <activity
-            android:name=".page.SelectBusinessItemActivity"
+            android:name=".page.OrderOnlineActivity"
             android:theme="@style/Material" />
         <activity
             android:name=".page.MainActivity"
@@ -68,15 +74,17 @@
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="true" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_profile_24dp" />
-
+            android:resource="@mipmap/ic_launcher_round" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+        <!--
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
-
+        -->
         <service
             android:name=".controller.FirebaseMessagingService"
             android:exported="false">

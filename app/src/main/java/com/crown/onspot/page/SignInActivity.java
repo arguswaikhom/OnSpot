@@ -1,7 +1,6 @@
 package com.crown.onspot.page;
 
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,7 +49,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_in_with_google);
+        setContentView(R.layout.sign_in_layout);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
         mParentView = findViewById(android.R.id.content);
@@ -60,11 +59,11 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
         mSignInButton.setOnClickListener(this);
 
-        AnimationDrawable animationDrawable = (AnimationDrawable) mRootLayout.getBackground();
+        /*AnimationDrawable animationDrawable = (AnimationDrawable) mRootLayout.getBackground();
         animationDrawable.setEnterFadeDuration(2000);
         animationDrawable.setExitFadeDuration(2000);
 
-        animationDrawable.start();
+        animationDrawable.start();*/
 
         if (AppController.getInstance().isAuthenticated()) {
             User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
@@ -96,9 +95,11 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 } catch (ApiException e) {
                     MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInActivity.this);
                     Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+                    Log.v(TAG, "Error: " + e.getMessage());
                 } catch (Exception e) {
                     MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInActivity.this);
                     Log.w(TAG, "signInResult:failed=" + e.getStackTrace());
+                    Log.v(TAG, "Error: " + e.getMessage());
                 }
                 break;
             }

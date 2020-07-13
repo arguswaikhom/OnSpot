@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -159,26 +158,44 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
         if (request == RC_GET_BUSINESS) {
             JSONObject object = JSONParsing.ObjectFromString(response);
             String status = JSONParsing.StringFromObject(object, "status");
-            if (status.equals("200")) {
-                Cache cache = AppController.getInstance().getRequestQueue().getCache();
-                Entry cacheEntry = new Entry();
-                cacheEntry.ttl = System.currentTimeMillis() + 120000;
-                cacheEntry.data = response.getBytes();
-                cache.put(URL_GET_BUSINESS, cacheEntry);
+            if (status.equals("200") || status.equals("204")) {
+                addNearBusinessToCache(response);
                 updateBusiness(response);
-            } else if (status.equals("204")) {
-                mNoCurrentOrderMessage.setText("No business available in your area");
-                mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
             } else {
+                addNearBusinessToCache(null);
                 mNoCurrentOrderMessage.setText("Something went wrong");
                 mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
             }
         }
     }
 
+    private void addNearBusinessToCache(String response) {
+        Cache cache = AppController.getInstance().getRequestQueue().getCache();
+        Entry cacheEntry = new Entry();
+
+        if (response == null) {
+            cache.put(URL_GET_BUSINESS, null);
+            return;
+        }
+
+        cacheEntry.ttl = System.currentTimeMillis() + 120000;
+        cacheEntry.data = response.getBytes();
+        cache.put(URL_GET_BUSINESS, cacheEntry);
+    }
+
     private void updateBusiness(String response) {
         JSONObject object = JSONParsing.ObjectFromString(response);
+        String status = JSONParsing.StringFromObject(object, "status");
+
         mDataset.clear();
+        if (status.equals("204")) {
+            mAdapter.notifyDataSetChanged();
+            mNoCurrentOrderMessage.setText("No business available in your area");
+            mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
+            return;
+        }
+        mNoCurrentOrderMessage.setVisibility(View.INVISIBLE);
+
         JSONArray array = JSONParsing.ArrayFromObject(object, "data");
         for (int i = 0; i < array.length(); i++) {
             try {
@@ -196,8 +213,13 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
     public void onHttpErrorResponse(VolleyError error, int request) {
         Log.v(TAG, error.toString());
         mLoadingView.setVisibility(View.GONE);
-        Toast.makeText(getContext(), error.toString().replace("com.android.volley.", ""), Toast.LENGTH_SHORT).show();
-        mNoCurrentOrderMessage.setText("Something went wrong");
-        mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
+
+        Entry entry = AppController.getInstance().getRequestQueue().getCache().get(URL_GET_BUSINESS);
+        if (entry == null) {
+            mNoCurrentOrderMessage.setText("Something went wrong");
+            mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
+        } else {
+            mNoCurrentOrderMessage.setVisibility(View.INVISIBLE);
+        }
     }
 }

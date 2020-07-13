@@ -106,14 +106,9 @@ public class AppController extends Application {
         User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
 
         if (token != null && user != null) {
-            FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId())
-                    .update(getString(R.string.field_device_token), FieldValue.arrayRemove(token))
-                    .addOnSuccessListener(v -> {
-                        clearContent(activity);
-                    });
-        } else {
-            clearContent(activity);
+            FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId()).update(getString(R.string.field_device_token), FieldValue.arrayRemove(token));
         }
+        clearContent(activity);
     }
 
     private void clearContent(Activity activity) {
