@@ -161,9 +161,11 @@ public class OrderSummaryActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void onClickedSubmit() {
+        Map<String, Object> param = getDataToUpload();
+        if (param == null) return;
         mLoadingPbar.setVisibility(View.VISIBLE);
         mSubmitBtn.setEnabled(false);
-        mFireStore.collection("order").add(getDataToUpload()).addOnCompleteListener(task -> {
+        mFireStore.collection("order").add(param).addOnCompleteListener(task -> {
             mLoadingPbar.setVisibility(View.GONE);
             Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
             finish();
@@ -179,6 +181,11 @@ public class OrderSummaryActivity extends AppCompatActivity implements View.OnCl
         List<Map<String, Object>> orderItem = new ArrayList<>();
         for (OrderItem item : mOrder) {
             orderItem.add(item.getUploadable());
+        }
+
+        if (user.getLocation() == null || user.getLocation().isEmpty()) {
+            Toast.makeText(this, "Invalid delivery location", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         map.put("customerId", user.getUserId());

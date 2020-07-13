@@ -1,2 +1,3 @@
-rootProject.name='OnSpot'
-include ':app'
+rootProject.name = 'OnSpot'
+include ':app', ':onspot-library'
+project(':onspot-library').projectDir = new File('C:\\Users\\BW078209\\AndroidStudioProjects\\OnSpotLibrary\\app')

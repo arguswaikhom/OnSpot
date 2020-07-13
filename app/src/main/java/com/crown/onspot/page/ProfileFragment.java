@@ -1,5 +1,6 @@
 package com.crown.onspot.page;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,10 @@ import com.crown.onspot.model.User;
 import com.crown.onspot.utils.preference.PreferenceKey;
 import com.crown.onspot.utils.preference.Preferences;
 
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class ProfileFragment extends Fragment {
 
     private static final String TAG = ProfileFragment.class.getName();
     private ImageView mProfileImageIV;
@@ -27,6 +31,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
+        ButterKnife.bind(this, root);
 
         initiateUi(root);
         setUpUi();
@@ -37,7 +42,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mProfileImageIV = root.findViewById(R.id.iv_fp_profile_image);
         mDisplayNameTV = root.findViewById(R.id.tv_fp_display_name);
         mEmailTV = root.findViewById(R.id.tv_fp_email);
-        root.findViewById(R.id.ll_fp_logout).setOnClickListener(this);
     }
 
     private void setUpUi() {
@@ -50,13 +54,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mEmailTV.setText(user.getEmail());
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.ll_fp_logout: {
-                AppController.getInstance().signOut(getActivity());
-            }
-        }
+    @OnClick(R.id.ll_fp_logout)
+    void onClickedLogout() {
+        AppController.getInstance().signOut(getActivity());
+    }
 
+    @OnClick(R.id.ll_fp_contact_us)
+    void onClickedContactUs() {
+        startActivity(new Intent(getContext(), ContactUsActivity.class));
     }
 }

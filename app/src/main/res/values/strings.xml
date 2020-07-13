@@ -25,4 +25,7 @@
     <string name="field_device_token">deviceToken</string>
 
     <string name="title_activity_contact">ContactActivity</string>
+
+    <string name="instagram">\@onspotapp</string>
+    <string name="gmail">onspotbusiness@gmail.com</string>
 </resources>
