@@ -1,7 +1,6 @@
 package com.crown.onspot.page;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,99 +8,114 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.crown.library.onspotlibrary.controller.OSPreferences;
+import com.crown.library.onspotlibrary.model.ListItem;
+import com.crown.library.onspotlibrary.model.UnSupportedContent;
+import com.crown.library.onspotlibrary.model.order.OSOldOrder;
+import com.crown.library.onspotlibrary.model.order.OSOrder;
+import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
+import com.crown.library.onspotlibrary.utils.emun.OrderStatus;
+import com.crown.onspot.BuildConfig;
 import com.crown.onspot.R;
-import com.crown.onspot.model.Order;
-import com.crown.onspot.model.User;
-import com.crown.onspot.utils.abstracts.ListItem;
-import com.crown.onspot.utils.preference.PreferenceKey;
-import com.crown.onspot.utils.preference.Preferences;
+import com.crown.onspot.databinding.FragmentMyOrderBinding;
 import com.crown.onspot.view.ListItemAdapter;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MyOrderFragment extends Fragment implements EventListener<QuerySnapshot> {
+public class MyOrderFragment extends Fragment {
     private static final String TAG = MyOrderFragment.class.getName();
 
+    private UserOS user;
     private List<ListItem> mDataset;
     private ListItemAdapter mAdapter;
     private ListenerRegistration mMyOrderChangeListener;
+    private FragmentMyOrderBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_my_order, container, false);
-        Toolbar toolbar = root.findViewById(R.id.tbar_fmo_tool_bar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        toolbar.setTitle("My Order");
-
-        setUpRecycler(root);
-        return root;
+        binding = FragmentMyOrderBinding.inflate(inflater, container, false);
+        binding.toolBar.setTitle("My Order");
+        ((AppCompatActivity) getActivity()).setSupportActionBar(binding.toolBar);
+        setUpRecycler();
+        user = OSPreferences.getInstance(getContext().getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
+        mMyOrderChangeListener = FirebaseFirestore.getInstance().collection(getString(R.string.ref_order))
+                .whereEqualTo(FieldPath.of(getString(R.string.field_customer), getString(R.string.field_user_id)), user.getUserId())
+                .addSnapshotListener(this::onEvent);
+        return binding.getRoot();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        getContactData();
-    }
-
-    private void getContactData() {
-        User user = Preferences.getInstance(getContext().getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        mMyOrderChangeListener = FirebaseFirestore.getInstance().collection(getString(R.string.ref_order)).whereEqualTo("customerId", user.getUserId()).addSnapshotListener(this);
-    }
-
-    private void setUpRecycler(View root) {
-        RecyclerView mRecyclerView = root.findViewById(R.id.rv_bnrvl_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-
+    private void setUpRecycler() {
+        binding.orderListRv.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
+        binding.orderListRv.setLayoutManager(mLayoutManager);
         mDataset = new ArrayList<>();
-        mAdapter = new ListItemAdapter(getContext(), mDataset);
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new ListItemAdapter(mDataset);
+        binding.orderListRv.setAdapter(mAdapter);
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         mMyOrderChangeListener.remove();
     }
 
-    @Override
-    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-        if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-            updateItemList(queryDocumentSnapshots.getDocuments());
+    public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+        if (snapshots == null) {
+
+        } else if (snapshots.isEmpty()) {
+
+        } else {
+            updateItemList(snapshots.getDocuments());
         }
     }
 
     private void updateItemList(List<DocumentSnapshot> documents) {
         mDataset.clear();
+        boolean hasUnsupportedContent = false;
+        UnSupportedContent unSupportedContent = new UnSupportedContent(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME, user.getUserId(), MyOrderFragment.class.getName());
         for (DocumentSnapshot doc : documents) {
-            if (doc.exists()) {
-                Order order = doc.toObject(Order.class);
-                order.setOrderId(doc.getId());
-                mDataset.add(order);
+            try {
+                OrderStatus status = OrderStatus.valueOf(doc.getString(getString(R.string.field_status)));
+                if (status == OrderStatus.CANCELED || status == OrderStatus.DELIVERED) {
+                    OSOldOrder order = doc.toObject(OSOldOrder.class);
+                    assert order != null;
+                    order.setOrderId(doc.getId());
+                    mDataset.add(order);
+                } else {
+                    OSOrder order = doc.toObject(OSOrder.class);
+                    assert order != null;
+                    order.setOrderId(doc.getId());
+                    mDataset.add(order);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                hasUnsupportedContent = true;
+                unSupportedContent.addItem(doc);
+                unSupportedContent.addException(new Gson().toJson(e));
             }
-            Log.v(TAG, doc.getId());
         }
-        Collections.sort(mDataset, ((o1, o2) -> {
-            Timestamp o1T = ((Order) o1).getStatusRecord().get(0).getTimestamp();
-            Timestamp o2T = ((Order) o2).getStatusRecord().get(0).getTimestamp();
 
-            return (int) (o2T.getSeconds() - o1T.getSeconds());
-        }));
+        Collections.sort(mDataset, (o1, o2) -> ((OSOrder) o2).getOrderedAt().compareTo(((OSOrder) o1).getOrderedAt()));
+
+        if (hasUnsupportedContent) {
+            List<ListItem> temp = new ArrayList<>(mDataset);
+            mDataset.clear();
+            mDataset.add(unSupportedContent);
+            mDataset.addAll(temp);
+        }
         mAdapter.notifyDataSetChanged();
     }
 }

@@ -7,12 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,16 +19,17 @@ import com.android.volley.Cache;
 import com.android.volley.Cache.Entry;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.crown.library.onspotlibrary.model.ListItem;
+import com.crown.library.onspotlibrary.model.business.BusinessV4;
+import com.crown.library.onspotlibrary.utils.CurrentLocation;
+import com.crown.library.onspotlibrary.utils.OSCommonDialog;
+import com.crown.library.onspotlibrary.utils.OSJsonParse;
 import com.crown.onspot.R;
 import com.crown.onspot.controller.AppController;
-import com.crown.onspot.model.Shop;
+import com.crown.onspot.databinding.FragmentHomeBinding;
 import com.crown.onspot.utils.HttpVolleyRequest;
-import com.crown.onspot.utils.JSONParsing;
-import com.crown.onspot.utils.abstracts.ListItem;
-import com.crown.onspot.utils.abstracts.OnHttpResponse;
+import com.crown.onspot.utils.OnHttpResponse;
 import com.crown.onspot.view.ListItemAdapter;
-import com.crown.onspot.view.ViewLoadingDotsBounce;
-import com.google.android.gms.location.LocationServices;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.Gson;
 import com.karumi.dexter.Dexter;
@@ -49,19 +48,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-public class NearBusinessFragment extends Fragment implements OnHttpResponse {
-    private static final String TAG = NearBusinessFragment.class.getName();
+public class HomeFragment extends Fragment implements OnHttpResponse {
+    private static final String TAG = HomeFragment.class.getName();
     private static final int RC_GET_BUSINESS = 1;
-    @BindView(R.id.view_fp_loading)
-    ViewLoadingDotsBounce mLoadingView;
-    @BindView(R.id.tv_wtl_warning)
-    TextView mNoCurrentOrderMessage;
     private String URL_GET_BUSINESS;
     private List<ListItem> mDataset;
     private ListItemAdapter mAdapter;
+    private FragmentHomeBinding binding;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,53 +64,43 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
-        ButterKnife.bind(this, root);
-
-        Toolbar toolbar = root.findViewById(R.id.tbar_fmo_tool_bar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        toolbar.setTitle("OnSpot");
-
-        setUpRecycler(root);
-        return root;
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding.toolBar.setTitle("Home");
+        ((AppCompatActivity) getActivity()).setSupportActionBar(binding.toolBar);
+        setUpRecycler();
+        return binding.getRoot();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (mLoadingView.getVisibility() == View.VISIBLE)
-            mLoadingView.setVisibility(View.INVISIBLE);
+        if (binding.loading.getVisibility() == View.VISIBLE)
+            binding.loading.setVisibility(View.INVISIBLE);
         getCurrentLocation();
     }
 
-    private void setUpRecycler(View root) {
-        RecyclerView mRecyclerView = root.findViewById(R.id.rv_bnrvl_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-
+    private void setUpRecycler() {
+        binding.listRv.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mAdapter = new ListItemAdapter(getActivity(), mDataset);
-        mRecyclerView.setAdapter(mAdapter);
+        binding.listRv.setLayoutManager(mLayoutManager);
+        mAdapter = new ListItemAdapter(mDataset);
+        binding.listRv.setAdapter(mAdapter);
     }
 
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        Dexter.withActivity(getActivity())
-                .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION).withListener(new MultiplePermissionsListener() {
+        Dexter.withActivity(getActivity()).withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION).withListener(new MultiplePermissionsListener() {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
                 if (report.areAllPermissionsGranted()) {
                     if (getActivity() == null) return;
-                    LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation().addOnSuccessListener(getActivity(), location -> {
-                        if (location != null) {
-                            Log.v(TAG, location.getLatitude() + "");
-                            Log.v(TAG, location.getLongitude() + "");
+                    CurrentLocation.getInstance(getContext()).get(location -> getBusiness(new GeoPoint(location.getLatitude(),
+                            location.getLongitude())), () -> OSCommonDialog.locationError(getActivity()), null);
+                }
 
-                            getBusiness(new GeoPoint(location.getLatitude(), location.getLongitude()));
-                        }
-                    });
+                if (report.isAnyPermissionPermanentlyDenied()) {
+                    OSCommonDialog.appSettings(getActivity());
                 }
             }
 
@@ -144,7 +127,7 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
             return;
         }
 
-        mLoadingView.setVisibility(View.VISIBLE);
+        binding.loading.setVisibility(View.VISIBLE);
         HttpVolleyRequest request = new HttpVolleyRequest(Request.Method.POST, URL_GET_BUSINESS, null, RC_GET_BUSINESS, null, map, this);
         request.execute();
     }
@@ -153,18 +136,19 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
     @Override
     public void onHttpResponse(String response, int request) {
         Log.v(TAG, response);
-        if (mLoadingView.getVisibility() == View.VISIBLE) mLoadingView.setVisibility(View.GONE);
+        if (binding.loading.getVisibility() == View.VISIBLE)
+            binding.loading.setVisibility(View.GONE);
 
         if (request == RC_GET_BUSINESS) {
-            JSONObject object = JSONParsing.ObjectFromString(response);
-            String status = JSONParsing.StringFromObject(object, "status");
+            JSONObject object = OSJsonParse.stringToObject(response);
+            String status = OSJsonParse.stringFromObject(object, "status");
             if (status.equals("200") || status.equals("204")) {
                 addNearBusinessToCache(response);
                 updateBusiness(response);
             } else {
                 addNearBusinessToCache(null);
-                mNoCurrentOrderMessage.setText("Something went wrong");
-                mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
+                binding.infoInclude.warningTv.setText("Something went wrong");
+                binding.infoInclude.warningTv.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -184,22 +168,22 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
     }
 
     private void updateBusiness(String response) {
-        JSONObject object = JSONParsing.ObjectFromString(response);
-        String status = JSONParsing.StringFromObject(object, "status");
+        JSONObject object = OSJsonParse.stringToObject(response);
+        String status = OSJsonParse.stringFromObject(object, "status");
 
         mDataset.clear();
         if (status.equals("204")) {
             mAdapter.notifyDataSetChanged();
-            mNoCurrentOrderMessage.setText("No business available in your area");
-            mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
+            binding.infoInclude.warningTv.setText("No business available in your area");
+            binding.infoInclude.warningTv.setVisibility(View.VISIBLE);
             return;
         }
-        mNoCurrentOrderMessage.setVisibility(View.INVISIBLE);
+        binding.infoInclude.warningTv.setVisibility(View.INVISIBLE);
 
-        JSONArray array = JSONParsing.ArrayFromObject(object, "data");
+        JSONArray array = OSJsonParse.arrayFromObject(object, "data");
         for (int i = 0; i < array.length(); i++) {
             try {
-                Shop business = new Gson().fromJson(array.get(i).toString(), Shop.class);
+                BusinessV4 business = new Gson().fromJson(array.get(i).toString(), BusinessV4.class);
                 Log.v(TAG, "Business: " + business);
                 mDataset.add(business);
             } catch (JSONException e) {
@@ -212,14 +196,14 @@ public class NearBusinessFragment extends Fragment implements OnHttpResponse {
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
         Log.v(TAG, error.toString());
-        mLoadingView.setVisibility(View.GONE);
+        binding.loading.setVisibility(View.GONE);
 
         Entry entry = AppController.getInstance().getRequestQueue().getCache().get(URL_GET_BUSINESS);
         if (entry == null) {
-            mNoCurrentOrderMessage.setText("Something went wrong");
-            mNoCurrentOrderMessage.setVisibility(View.VISIBLE);
+            binding.infoInclude.warningTv.setText("Something went wrong");
+            binding.infoInclude.warningTv.setVisibility(View.VISIBLE);
         } else {
-            mNoCurrentOrderMessage.setVisibility(View.INVISIBLE);
+            binding.infoInclude.warningTv.setVisibility(View.INVISIBLE);
         }
     }
 }

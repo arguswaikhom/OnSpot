@@ -18,7 +18,7 @@
             android:text="Address" />
 
         <TextView
-            android:id="@+id/tv_dd_address"
+            android:id="@+id/address_tv"
             style="@style/TextViewValue"
             tools:text="Thoubal Achouba Mayai Leikai, Thoubal, Manipur. 795138" />
 
@@ -28,7 +28,7 @@
             android:text="How to reach" />
 
         <TextView
-            android:id="@+id/tv_dd_reach"
+            android:id="@+id/how_to_reach_tv"
             style="@style/TextViewValue"
             tools:text="Go straight to the hell" />
     </LinearLayout>

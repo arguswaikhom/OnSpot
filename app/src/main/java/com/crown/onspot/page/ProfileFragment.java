@@ -13,11 +13,11 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.crown.library.onspotlibrary.controller.OSPreferences;
+import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.onspot.R;
 import com.crown.onspot.controller.AppController;
-import com.crown.onspot.model.User;
-import com.crown.onspot.utils.preference.PreferenceKey;
-import com.crown.onspot.utils.preference.Preferences;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -45,7 +45,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setUpUi() {
-        User user = Preferences.getInstance(getContext().getApplicationContext()).getObject(PreferenceKey.USER, User.class);
+        UserOS user = OSPreferences.getInstance(getContext().getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
         Glide.with(this)
                 .load(user.getProfileImageUrl())
                 .apply(new RequestOptions().centerCrop().circleCrop())

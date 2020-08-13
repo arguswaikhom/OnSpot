@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CardViewStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp">
+
+        <TextView
+            android:id="@+id/business_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="James Rocks" />
+
+        <TextView
+            android:id="@+id/order_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@+id/business_name_tv"
+            app:layout_constraintTop_toBottomOf="@+id/business_name_tv"
+            tools:text="ordered at: 9:30 AM" />
+
+        <ImageButton
+            android:id="@+id/nav_details_ibtn"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:background="@drawable/ic_round_arrow_forward_ios_24"
+            android:tint="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="@+id/order_time_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/status_btn"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:clickable="false"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:textAllCaps="false"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/order_time_tv"
+            app:layout_constraintEnd_toStartOf="@+id/nav_details_ibtn"
+            app:layout_constraintTop_toTopOf="@+id/business_name_tv"
+            tools:text="Canceled" />
+
+        <View
+            android:id="@+id/view"
+            style="@style/VerticalDivider"
+            app:layout_constraintBottom_toTopOf="@+id/order_items_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/order_time_tv" />
+
+        <TextView
+            android:id="@+id/order_items_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@+id/order_time_tv"
+            app:layout_constraintTop_toBottomOf="@+id/view"
+            tools:text="Max Hijam will deliver this order" />
+
+        <View
+            android:id="@+id/view1"
+            style="@style/VerticalDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/order_items_tv" />
+
+        <TextView
+            android:id="@+id/final_price_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view1"
+            tools:text="@string/inr" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

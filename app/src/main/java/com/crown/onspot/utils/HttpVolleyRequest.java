@@ -6,7 +6,6 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.toolbox.StringRequest;
 import com.crown.onspot.controller.AppController;
-import com.crown.onspot.utils.abstracts.OnHttpResponse;
 
 import java.util.Map;
 

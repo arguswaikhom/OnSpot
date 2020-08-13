@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.crown.onspot.page.NearBusinessFragment"
+        android:name="com.crown.onspot.page.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 

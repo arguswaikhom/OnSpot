@@ -28,4 +28,7 @@
 
     <string name="instagram">\@onspotapp</string>
     <string name="gmail">onspotbusiness@gmail.com</string>
+
+    <!--Button-->
+    <string name="action_order_now">Order now</string>
 </resources>
