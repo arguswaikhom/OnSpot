@@ -6,29 +6,25 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.TextView;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.crown.library.onspotlibrary.model.ListItem;
+import com.crown.library.onspotlibrary.model.business.BusinessV4;
+import com.crown.library.onspotlibrary.model.cart.OSCart;
+import com.crown.library.onspotlibrary.utils.BusinessItemUtils;
+import com.crown.library.onspotlibrary.utils.callback.OSCartQuantityViewClickListener;
+import com.crown.library.onspotlibrary.utils.emun.BusinessItemStatus;
 import com.crown.onspot.R;
-import com.crown.onspot.model.OrderItem;
-import com.crown.onspot.model.Shop;
-import com.crown.onspot.utils.abstracts.HidingScrollListener;
-import com.crown.onspot.utils.abstracts.ListItem;
-import com.crown.onspot.utils.abstracts.OnChangeShopItemCart;
+import com.crown.onspot.databinding.ActivityOrderOnlineBinding;
 import com.crown.onspot.view.ListItemAdapter;
-import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -40,83 +36,49 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+public class OrderOnlineActivity extends AppCompatActivity implements OSCartQuantityViewClickListener {
 
-public class OrderOnlineActivity extends AppCompatActivity implements OnChangeShopItemCart,
-        EventListener<QuerySnapshot> {
-
-    public static final String KEY_SHOP = "SHOP";
+    public static final String BUSINESS = "BUSINESS";
     private final String TAG = OrderOnlineActivity.class.getName();
     private List<ListItem> mDataset;
     private ListItemAdapter mAdapter;
-    private MaterialCardView mOrderCartCV;
-    private TextView mTotalItem;
-    private TextView mTotalPrice;
-    private Shop mShop;
+    private BusinessV4 business;
+    private ActivityOrderOnlineBinding binding;
     private ListenerRegistration mBusinessItemChangeListener;
-
-
-    private HidingScrollListener mScrollListener = new HidingScrollListener() {
-        @Override
-        public void onHide() {
-            // mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2));
-            ConstraintLayout.LayoutParams lp = (ConstraintLayout.LayoutParams) mOrderCartCV.getLayoutParams();
-            mOrderCartCV.animate().translationY(mOrderCartCV.getHeight() + lp.bottomMargin).setInterpolator(new AccelerateInterpolator(2)).start();
-        }
-
-        @Override
-        public void onShow() {
-            mOrderCartCV.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-            // mFabButton.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shop);
-        ButterKnife.bind(this);
+        binding = ActivityOrderOnlineBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         getSupportActionBar().setTitle("Order online");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        initUi();
 
-        setUpRecycler();
-        setUpUi();
-
-        String json = getIntent().getStringExtra(KEY_SHOP);
+        String json = getIntent().getStringExtra(BUSINESS);
         if (json != null && !json.isEmpty()) {
-            mShop = new Gson().fromJson(json, Shop.class);
-            Log.v("TAG", "Business: " + mShop);
+            business = new Gson().fromJson(json, BusinessV4.class);
         }
     }
 
-    private void setUpUi() {
-        mOrderCartCV = findViewById(R.id.cv_as_cart_bar);
-        mTotalItem = findViewById(R.id.tv_as_total_item);
-        mTotalPrice = findViewById(R.id.tv_as_total_amount);
-    }
+    private void initUi() {
+        binding.orderBtn.setOnClickListener(this::onClickedOrder);
 
-    private void setUpRecycler() {
-        RecyclerView mRecyclerView = findViewById(R.id.rv_rvl_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
+        binding.itemListRv.setHasFixedSize(true);
+        binding.itemListRv.setLayoutManager(new LinearLayoutManager(this));
         mDataset = new ArrayList<>();
-        mAdapter = new ListItemAdapter(this, mDataset);
-        mRecyclerView.setAdapter(mAdapter);
-        // mRecyclerView.setOnScrollListener(mScrollListener);
+        mAdapter = new ListItemAdapter(mDataset);
+        binding.itemListRv.setAdapter(mAdapter);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (mShop != null) {
+        if (business != null) {
             mBusinessItemChangeListener = FirebaseFirestore.getInstance().collection(getString(R.string.sub_ref_item))
-                    .whereEqualTo("businessRefId", mShop.getBusinessRefId().trim())
-                    .addSnapshotListener(this);
+                    .whereEqualTo(getString(R.string.field_business_ref_id), business.getBusinessRefId().trim())
+                    .addSnapshotListener(this::onEvent);
         }
     }
 
@@ -126,15 +88,14 @@ public class OrderOnlineActivity extends AppCompatActivity implements OnChangeSh
         mBusinessItemChangeListener.remove();
     }
 
-    @OnClick(R.id.btn_as_order)
-    void onClickedOrder() {
-        ArrayList<OrderItem> orderList = getSelectedOrder();
+    void onClickedOrder(View view) {
+        ArrayList<OSCart> orderList = getSelectedOrder();
         if (orderList.isEmpty()) {
             Toast.makeText(this, "Select some item", Toast.LENGTH_SHORT).show();
         } else {
             Intent intent = new Intent(this, OrderSummaryActivity.class);
-            intent.putExtra(OrderSummaryActivity.KEY_ORDER, new Gson().toJson(orderList));
-            intent.putExtra(OrderSummaryActivity.KEY_SHOP, new Gson().toJson(mShop));
+            intent.putExtra(OrderSummaryActivity.CART, new Gson().toJson(orderList));
+            intent.putExtra(OrderSummaryActivity.BUSINESS, new Gson().toJson(business));
             startActivity(intent);
         }
     }
@@ -163,37 +124,29 @@ public class OrderOnlineActivity extends AppCompatActivity implements OnChangeSh
     }
 
     private void onClickedCallBusiness() {
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + mShop.getMobileNumber()));
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + business.getMobileNumber()));
         startActivity(intent);
     }
 
-    @Override
-    public void onChangeShopItemCart(int position, int mode) {
-        if (mode == OnChangeShopItemCart.ADD || mode == OnChangeShopItemCart.SUB) {
-            updateTotalSummary();
-        }
-    }
-
-    @Override
     public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
         if (snapshots != null && !snapshots.isEmpty()) {
             updateItemList(snapshots.getDocuments());
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void updateItemList(List<DocumentSnapshot> documents) {
-        List<OrderItem> selectedItems = getSelectedOrder();
+        List<OSCart> selectedItems = getSelectedOrder();
         boolean hasStatusChanged = false;
         mDataset.clear();
         for (DocumentSnapshot doc : documents) {
-            if (doc != null && doc.exists()) {
-                OrderItem item = doc.toObject(OrderItem.class);
-                if (item == null) continue;
+            try {
+                OSCart item = doc.toObject(OSCart.class);
                 item.setItemId(doc.getId());
-                if (doc.get("isDeleted") == null || !((Boolean) doc.get("isDeleted"))) {
-                    for (OrderItem sItem : selectedItems) {
+                if (doc.get(getString(R.string.field_archived)) == null || !((Boolean) doc.get(getString(R.string.field_archived)))) {
+                    for (OSCart sItem : selectedItems) {
                         if (sItem.getItemId().equals(item.getItemId())) {
-                            if (item.getStatus() == null || item.getStatus().equalsIgnoreCase("available")) {
+                            if (item.getStatus() == null || item.getStatus() == BusinessItemStatus.AVAILABLE) {
                                 item.setQuantity(sItem.getQuantity());
                             } else {
                                 hasStatusChanged = true;
@@ -202,11 +155,13 @@ public class OrderOnlineActivity extends AppCompatActivity implements OnChangeSh
                     }
                     mDataset.add(item);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // todo: implement unsupported content
             }
         }
-        Collections.sort(mDataset, ((o1, o2) -> ((OrderItem) o1).getItemName().compareToIgnoreCase(((OrderItem) o2).getItemName())));
+        Collections.sort(mDataset, ((o1, o2) -> ((OSCart) o1).getItemName().compareToIgnoreCase(((OSCart) o2).getItemName())));
         updateTotalSummary();
-        Log.v(TAG, "Length: " + mDataset.size());
         mAdapter.notifyDataSetChanged();
 
         if (hasStatusChanged) {
@@ -221,11 +176,11 @@ public class OrderOnlineActivity extends AppCompatActivity implements OnChangeSh
         }
     }
 
-    private ArrayList<OrderItem> getSelectedOrder() {
-        ArrayList<OrderItem> listItems = new ArrayList<>();
+    private ArrayList<OSCart> getSelectedOrder() {
+        ArrayList<OSCart> listItems = new ArrayList<>();
         for (ListItem item : mDataset) {
-            if (((OrderItem) item).getQuantity() > 0) {
-                listItems.add((OrderItem) item);
+            if (((OSCart) item).getQuantity() > 0) {
+                listItems.add((OSCart) item);
             }
         }
         Log.v(TAG, "Length: " + mDataset.size());
@@ -235,11 +190,18 @@ public class OrderOnlineActivity extends AppCompatActivity implements OnChangeSh
     private void updateTotalSummary() {
         int totalItem = 0;
         long totalAmount = 0;
-        for (OrderItem item : getSelectedOrder()) {
+        for (OSCart item : getSelectedOrder()) {
             totalItem += item.getQuantity();
-            totalAmount += item.getFinalPrice() * (item.getQuantity());
+            totalAmount += BusinessItemUtils.getFinalPrice(item.getPrice()) * (item.getQuantity());
         }
-        mTotalItem.setText(String.format(Locale.ENGLISH, "Total items: %d", totalItem));
-        mTotalPrice.setText(String.format(Locale.ENGLISH, "Total amount: %d", totalAmount));
+        binding.totalItemTv.setText(String.format(Locale.ENGLISH, "Total items: %d", totalItem));
+        binding.totalAmountTv.setText(String.format(Locale.ENGLISH, "Total amount: %d", totalAmount));
+    }
+
+    @Override
+    public void onQuantityChange(View view, int mode, int position) {
+        if (mode == OSCartQuantityViewClickListener.ADD || mode == OSCartQuantityViewClickListener.SUB) {
+            updateTotalSummary();
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.crown.onspot.utils.abstracts;
+package com.crown.onspot.utils;
 
 import com.android.volley.VolleyError;
 
