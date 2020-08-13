@@ -21,6 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Material"
         tools:replace="android:icon,android:theme">
+        <activity android:name=".page.OrderDetailsActivity"></activity>
         <activity
             android:name=".page.ContactUsActivity"
             android:label="Contact Us"

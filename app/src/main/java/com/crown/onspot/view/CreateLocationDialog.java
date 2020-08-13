@@ -13,8 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.crown.library.onspotlibrary.model.OSLocation;
 import com.crown.onspot.R;
-import com.crown.onspot.model.OSLocation;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.GeoPoint;
@@ -37,7 +37,11 @@ public class CreateLocationDialog extends DialogFragment implements View.OnClick
     private TextInputEditText addressTIET;
     private TextInputEditText howToReachTIET;
     private Button selectLocationBtn;
-    private OnLocationDialogActionClicked clickHandler;
+    private OnLocationSubmit clickHandler;
+
+    public void setOnSubmitListener(OnLocationSubmit clickHandler) {
+        this.clickHandler = clickHandler;
+    }
 
     @NonNull
     @Override
@@ -45,7 +49,6 @@ public class CreateLocationDialog extends DialogFragment implements View.OnClick
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View root = inflater.inflate(R.layout.dialog_create_location, null);
-        clickHandler = (OnLocationDialogActionClicked) getActivity();
 
         initiateUi(root);
         selectLocationBtn.setOnClickListener(this);
@@ -108,7 +111,8 @@ public class CreateLocationDialog extends DialogFragment implements View.OnClick
         mSelectedOSLocation.setAddressLine(address);
         mSelectedOSLocation.setHowToReach(howToReach);
 
-        clickHandler.onLocationDialogPositiveActionClicked(mSelectedOSLocation);
+        if (clickHandler != null)
+            clickHandler.onLocationSubmit(mSelectedOSLocation);
         this.dismiss();
     }
 
@@ -132,13 +136,13 @@ public class CreateLocationDialog extends DialogFragment implements View.OnClick
     private void showPlacePicker() {
         Intent pickerActivity = new LocationPickerActivity.Builder()
                 .withGeolocApiKey(getResources().getString(R.string.key_api))
-                // .withMapStyle(R.raw.place_picker_style)
+                //.withMapStyle(R.raw.place_picker_style)
                 .build(getContext());
 
         startActivityForResult(pickerActivity, RC_INTENT_SELECT_LOCATION_FROM_MAP);
     }
 
-    public interface OnLocationDialogActionClicked {
-        void onLocationDialogPositiveActionClicked(OSLocation OSLocation);
+    public interface OnLocationSubmit {
+        void onLocationSubmit(OSLocation location);
     }
 }

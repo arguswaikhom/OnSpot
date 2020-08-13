@@ -6,14 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".page.OrderOnlineActivity">
 
-    <include
-        layout="@layout/recycler_view_layout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/item_list_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="62dp" />
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_as_cart_bar"
+        android:id="@+id/cart_bar_mcv"
         android:layout_width="match_parent"
         android:layout_height="62dp"
         app:cardElevation="8dp"
@@ -24,30 +24,31 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/primary_margin">
+            android:layout_margin="@dimen/primary_margin"
+            tools:ignore="HardcodedText">
 
             <TextView
-                android:id="@+id/tv_as_total_item"
+                android:id="@+id/total_item_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total items: "
                 android:textSize="@dimen/sp_sub1"
-                app:layout_constraintBottom_toTopOf="@id/tv_as_total_amount"
+                app:layout_constraintBottom_toTopOf="@id/total_amount_tv"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tv_as_total_amount"
+                android:id="@+id/total_amount_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total amount: "
                 android:textSize="@dimen/sp_sub1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_as_total_item" />
+                app:layout_constraintTop_toBottomOf="@id/total_item_tv" />
 
             <Button
-                android:id="@+id/btn_as_order"
+                android:id="@+id/order_btn"
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

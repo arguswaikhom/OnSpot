@@ -1,124 +1,121 @@
 package com.crown.onspot.page;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TableLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import com.crown.library.onspotlibrary.controller.OSPreferences;
+import com.crown.library.onspotlibrary.model.OSLocation;
+import com.crown.library.onspotlibrary.model.OrderStatusRecord;
+import com.crown.library.onspotlibrary.model.business.BusinessOrder;
+import com.crown.library.onspotlibrary.model.business.BusinessV4;
+import com.crown.library.onspotlibrary.model.cart.OSCart;
+import com.crown.library.onspotlibrary.model.cart.OSCartLite;
+import com.crown.library.onspotlibrary.model.order.OSOrderUpload;
+import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.model.user.UserOrder;
+import com.crown.library.onspotlibrary.utils.BusinessItemUtils;
+import com.crown.library.onspotlibrary.utils.OSBroadcastReceiver;
+import com.crown.library.onspotlibrary.utils.OSLocationUtils;
+import com.crown.library.onspotlibrary.utils.OSMessage;
+import com.crown.library.onspotlibrary.utils.callback.OnReceiveOSBroadcasts;
+import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
+import com.crown.library.onspotlibrary.utils.emun.OrderStatus;
+import com.crown.library.onspotlibrary.views.LoadingBounceDialog;
 import com.crown.onspot.R;
-import com.crown.onspot.model.Contact;
-import com.crown.onspot.model.OSLocation;
-import com.crown.onspot.model.OrderItem;
-import com.crown.onspot.model.Shop;
-import com.crown.onspot.model.StatusRecord;
-import com.crown.onspot.model.User;
-import com.crown.onspot.utils.preference.PreferenceKey;
-import com.crown.onspot.utils.preference.Preferences;
+import com.crown.onspot.databinding.ActivityOrderSummaryBinding;
 import com.crown.onspot.view.CreateContactDialog;
 import com.crown.onspot.view.CreateLocationDialog;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
-//import com.crown.onspot.model.Location;
 
-public class OrderSummaryActivity extends AppCompatActivity implements View.OnClickListener,
-        CreateContactDialog.OnContactDialogActionClicked, CreateLocationDialog.OnLocationDialogActionClicked {
-    public static final String KEY_ORDER = "ORDER";
-    public static final String KEY_SHOP = "SHOP";
+public class OrderSummaryActivity extends AppCompatActivity implements OnReceiveOSBroadcasts {
+    public static final String CART = "CART";
+    public static final String BUSINESS = "BUSINESS";
     private final String TAG = OrderSummaryActivity.class.getName();
     private final int RC_INTENT_VERIFY_MOBILE_NUMBER = 2;
+    private IntentFilter mIntentFilter;
+    private OSBroadcastReceiver mBroadcastReceiver;
+    private ArrayList<OSCart> orders;
+    private BusinessV4 business;
+    private UserOS user;
+    private long itemCost;
+    private long totalTax;
+    private long finalAmount;
 
-    private TableLayout mOrderTL;
-    private TextView mNameTv;
-    private TextView mPhoneNo;
-    private TextView mAddress;
-    private TextView mHowToReach;
-    private Button mSubmitBtn;
-    private ProgressBar mLoadingPbar;
-    private FirebaseFirestore mFireStore;
-    private ArrayList<OrderItem> mOrder;
-    private Shop mShop;
-    private long totalAmount = 0;
-    private long finalAmount = 0;
+    private LoadingBounceDialog loadingBounce;
+    private ActivityOrderSummaryBinding binding;
+    private CreateLocationDialog.OnLocationSubmit onLocationChange = location -> {
+        if (business != null && business.getLocation() != null) {
+            double distance = OSLocationUtils.getDistance(business.getLocation(), location);
+            if (distance > business.getDeliveryRange()) {
+                new AlertDialog.Builder(this)
+                        .setTitle(business.getDisplayName())
+                        .setMessage("Selected location is out of delivery range.")
+                        .setPositiveButton("Change", (dialog, which) -> binding.changeAddressBtn.performClick())
+                        .show();
+                return;
+            }
+        }
+
+        FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId())
+                .update(getString(R.string.field_location), location)
+                .addOnSuccessListener(result -> Toast.makeText(this, "Update completed", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(error -> OSMessage.showAIBar(this, "Location update failed!!", "Retry", v -> binding.changeAddressBtn.performClick()));
+    };
+    private CreateContactDialog.OnContactSubmit onContactSubmit = (name, phoneNo) -> {
+        if (!phoneNo.trim().replace("+91", "").equals(user.getPhoneNumber().trim().replace("+91", ""))) {
+            Intent intent = new Intent(this, PhoneVerificationActivity.class);
+            intent.putExtra(PhoneVerificationActivity.KEY_PHONE_NO, phoneNo);
+            startActivityForResult(intent, RC_INTENT_VERIFY_MOBILE_NUMBER);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_order);
+        binding = ActivityOrderSummaryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        Toolbar toolbar = findViewById(R.id.tbar_fm_tool_bar);
-        setSupportActionBar(toolbar);
+        mBroadcastReceiver = new OSBroadcastReceiver(this);
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(getString(R.string.action_os_changes));
+
+        loadingBounce = new LoadingBounceDialog(this);
+        user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
+
+        setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mFireStore = FirebaseFirestore.getInstance();
         initiateUi();
 
-        String jsonOrderList = getIntent().getStringExtra(KEY_ORDER);
-        mOrder = new Gson().fromJson(jsonOrderList, new TypeToken<List<OrderItem>>() {
+        String jsonOrderList = getIntent().getStringExtra(CART);
+        orders = new Gson().fromJson(jsonOrderList, new TypeToken<List<OSCart>>() {
         }.getType());
-        if (mOrder != null) {
+        if (orders != null) {
             showOrder();
         }
 
-        String json = getIntent().getStringExtra(KEY_SHOP);
+        String json = getIntent().getStringExtra(BUSINESS);
         if (json != null && !json.isEmpty()) {
-            mShop = new Gson().fromJson(json, Shop.class);
-        }
-    }
-
-    private void initiateUi() {
-        mOrderTL = findViewById(R.id.tl_ao_order_list);
-        findViewById(R.id.btn_ao_change_contact).setOnClickListener(this);
-        findViewById(R.id.btn_ao_change_address).setOnClickListener(this);
-        mSubmitBtn = findViewById(R.id.btn_ao_submit);
-        mSubmitBtn.setOnClickListener(this);
-        mLoadingPbar = findViewById(R.id.pbar_ao_loading);
-
-        View contact = findViewById(R.id.include_ao_contact);
-        mNameTv = contact.findViewById(R.id.tv_cd_name);
-        mPhoneNo = contact.findViewById(R.id.tv_cd_phone_no);
-
-        View destination = findViewById(R.id.include_ao_address);
-        mAddress = destination.findViewById(R.id.tv_dd_address);
-        mHowToReach = destination.findViewById(R.id.tv_dd_reach);
-    }
-
-    private void setUpUi() {
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        OSLocation location = user.getLocation();
-
-        mNameTv.setText(user.getDisplayName());
-        mPhoneNo.setText(user.getPhoneNumber());
-
-        if (location != null) {
-            mAddress.setText(user.getLocation().getAddressLine());
-            mHowToReach.setText(user.getLocation().getHowToReach());
+            business = new Gson().fromJson(json, BusinessV4.class);
         }
     }
 
@@ -128,23 +125,22 @@ public class OrderSummaryActivity extends AppCompatActivity implements View.OnCl
         setUpUi();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_ao_change_contact: {
-                showCreateContactDialog();
-                break;
-            }
-            case R.id.btn_ao_change_address: {
-                showCreateLocationDialog();
-                break;
-            }
-            case R.id.btn_ao_submit: {
-                onClickedSubmit();
-                break;
-            }
+    private void initiateUi() {
+        binding.changeContactBtn.setOnClickListener(this::onClickedChangeContact);
+        binding.changeAddressBtn.setOnClickListener(this::onClickedChangeAddress);
+        binding.submitBtn.setOnClickListener(this::onClickedSubmit);
+    }
+
+    private void setUpUi() {
+        OSLocation location = user.getLocation();
+        binding.contactInclude.nameTv.setText(user.getDisplayName());
+        binding.contactInclude.phoneNoTv.setText(user.getPhoneNumber());
+        if (location != null) {
+            binding.addressInclude.addressTv.setText(user.getLocation().getAddressLine());
+            binding.addressInclude.howToReachTv.setText(user.getLocation().getHowToReach());
         }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -160,167 +156,119 @@ public class OrderSummaryActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    private void onClickedSubmit() {
-        Map<String, Object> param = getDataToUpload();
-        if (param == null) return;
-        mLoadingPbar.setVisibility(View.VISIBLE);
-        mSubmitBtn.setEnabled(false);
-        mFireStore.collection("order").add(param).addOnCompleteListener(task -> {
-            mLoadingPbar.setVisibility(View.GONE);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mBroadcastReceiver, mIntentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private void onClickedSubmit(View view) {
+        OSOrderUpload orderUpload = createOrder();
+        if (orderUpload == null) return;
+        loadingBounce.show();
+        FirebaseFirestore.getInstance().collection(getString(R.string.ref_order)).add(orderUpload).addOnSuccessListener(result -> {
+            loadingBounce.dismiss();
             Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
             finish();
         }).addOnFailureListener(error -> {
-            mSubmitBtn.setEnabled(true);
-            mLoadingPbar.setVisibility(View.GONE);
+            loadingBounce.dismiss();
+            OSMessage.showAIBar(this, "Failed to place order", "Retry", v -> onClickedSubmit(view));
         });
     }
 
-    private Map<String, Object> getDataToUpload() {
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        Map<String, Object> map = new HashMap<>();
-        List<Map<String, Object>> orderItem = new ArrayList<>();
-        for (OrderItem item : mOrder) {
-            orderItem.add(item.getUploadable());
-        }
+    private OSOrderUpload createOrder() {
+        //todo: is empty contact
 
-        if (user.getLocation() == null || user.getLocation().isEmpty()) {
-            Toast.makeText(this, "Invalid delivery location", Toast.LENGTH_SHORT).show();
+        if (OSLocationUtils.isEmpty(user.getLocation())) {
+            OSMessage.showSToast(this, "Location details required");
+            binding.changeAddressBtn.performClick();
             return null;
         }
 
-        map.put("customerId", user.getUserId());
-        map.put("customerDisplayName", user.getDisplayName());
-        map.put("businessRefId", mShop.getBusinessRefId());
-        map.put("businessDisplayName", mShop.getDisplayName());
-        map.put("status", StatusRecord.Status.ORDERED);
-        map.put("statusRecord", Collections.singletonList(new StatusRecord(StatusRecord.Status.ORDERED, new Timestamp(new Date()))));
-        map.put("totalPrice", totalAmount);
-        map.put("finalPrice", finalAmount);
-        map.put("items", orderItem);
-        map.put("destination", user.getLocation());
-        map.put("contact", new Contact(user.getDisplayName(), user.getPhoneNumber()));
+        OSOrderUpload order = new OSOrderUpload();
+        order.setTotalPrice(itemCost + totalTax);
+        order.setFinalPrice(finalAmount);
 
-        return map;
+        List<OSCartLite> items = new ArrayList<>();
+        for (OSCart item : orders) {
+            OSCartLite cart = new OSCartLite();
+            cart.setItemId(item.getItemId());
+            cart.setItemName(item.getItemName());
+            cart.setBusinessRefId(business.getBusinessRefId());
+            cart.setPrice(item.getPrice());
+            cart.setQuantity(item.getQuantity());
+            items.add(cart);
+        }
+        order.setItems(items);
+        order.setBusiness(BusinessOrder.fromBusiness(business));
+        order.setCustomer(UserOrder.fromUser(user));
+        order.setStatus(OrderStatus.ORDERED);
+        order.setOrderedAt(new Timestamp(new Date()));
+        order.setStatusRecord(Collections.singletonList(new OrderStatusRecord(OrderStatus.ORDERED, new Timestamp(new Date()))));
+        return order;
     }
 
-    private void showCreateLocationDialog() {
+    private void onClickedChangeAddress(View view) {
         CreateLocationDialog dialog = new CreateLocationDialog();
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        OSLocation OSLocation = user.getLocation();
-        if (OSLocation != null) {
+        if (user.getLocation() != null) {
             Bundle bundle = new Bundle();
-            bundle.putString(CreateLocationDialog.KEY_LOCATION, new Gson().toJson(OSLocation));
+            bundle.putString(CreateLocationDialog.KEY_LOCATION, new Gson().toJson(user.getLocation()));
             dialog.setArguments(bundle);
         }
         dialog.show(getSupportFragmentManager(), "");
+        dialog.setOnSubmitListener(onLocationChange);
     }
 
-    private void showCreateContactDialog() {
+    private void onClickedChangeContact(View view) {
         CreateContactDialog dialog = new CreateContactDialog();
         Bundle bundle = new Bundle();
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        bundle.putString(CreateContactDialog.KEY_NAME, user.getDisplayName());
-        bundle.putString(CreateContactDialog.KEY_PHONE_NO, user.getPhoneNumber());
+        bundle.putString(CreateContactDialog.NAME, user.getDisplayName());
+        bundle.putString(CreateContactDialog.PHONE_NO, user.getPhoneNumber());
         dialog.setArguments(bundle);
         dialog.show(getSupportFragmentManager(), "");
+        dialog.setOnSubmitListener(onContactSubmit);
+    }
+
+    private void updatePhoneNo(String number) {
+        FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId())
+                .update(getString(R.string.field_phone_number), number)
+                .addOnSuccessListener(result -> Toast.makeText(this, "Update completed", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(error -> OSMessage.showAIBar(this, "Contact update failed!!", "Retry", v -> binding.changeContactBtn.performClick()));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-        }
+        if (item.getItemId() == android.R.id.home) onBackPressed();
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onContactDialogPositiveActionClicked(String name, String phoneNo) {
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        String userId = user.getUserId();
-
-        if (!phoneNo.replace("+91", "").equals(user.getPhoneNumber().replace("+91", ""))) {
-            Intent intent = new Intent(this, PhoneVerificationActivity.class);
-            intent.putExtra(PhoneVerificationActivity.KEY_PHONE_NO, phoneNo);
-            startActivityForResult(intent, RC_INTENT_VERIFY_MOBILE_NUMBER);
-        }
-    }
-
-    private void updatePhoneNo(String number) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("phoneNumber", number);
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        String userId = user.getUserId();
-
-        FirebaseFirestore.getInstance().collection(getString(R.string.ref_user))
-                .document(userId)
-                .update(map)
-                .addOnCompleteListener(task -> {
-                    setUpUi();
-                    Toast.makeText(this, "Update completed", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(error -> Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show());
-    }
-
     private void showOrder() {
-        long totalDiscount = 0;
-        for (OrderItem item : mOrder) {
-            totalAmount += (item.getPriceWithTax() * item.getQuantity());
-            long itemAmount = item.getFinalPrice() * (item.getQuantity());
-            finalAmount += itemAmount;
-
-
-            LinearLayout root = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.order__order_item, null);
-            ((TextView) root.findViewById(R.id.tv_ooi_quantity)).setText(String.format(Locale.ENGLISH, "x%d", item.getQuantity()));
-            ((TextView) root.findViewById(R.id.tv_ooi_item_name)).setText(item.getItemName());
-            ((TextView) root.findViewById(R.id.tv_ooi_price)).setText(String.format("₹ %d", item.getPriceWithTax() * item.getQuantity()));
-            mOrderTL.addView(root);
+        // todo: consider delivery charge
+        binding.ordersOiv.clear();
+        for (OSCart item : orders) {
+            int quantity = (int) item.getQuantity();
+            itemCost += item.getPrice().getPrice() * quantity;
+            totalTax += BusinessItemUtils.getTaxAmount(item.getPrice()) * quantity;
+            double itemFinalAmount = BusinessItemUtils.getFinalPrice(item.getPrice()) * quantity;
+            finalAmount += itemFinalAmount;
+            binding.ordersOiv.addChild(quantity, item.getItemName(), (int) itemFinalAmount);
         }
-        totalDiscount = totalAmount - finalAmount;
-
-        ((TextView) findViewById(R.id.tv_ao_total_price)).setText(String.format("₹ %d", totalAmount));
-        ((TextView) findViewById(R.id.tv_ao_discount)).setText("- ₹ " + totalDiscount);
-        ((TextView) findViewById(R.id.tv_ao_final_price)).setText("₹ " + finalAmount);
+        String inr = getString(R.string.inr);
+        binding.itemCostTv.setText(String.format(Locale.ENGLISH, "%s%d", inr, itemCost));
+        binding.taxTv.setText(String.format(Locale.ENGLISH, "+ %s%d", inr, totalTax));
+        binding.discountTv.setText(String.format(Locale.ENGLISH, "- %s%d", inr, (itemCost + totalTax) - finalAmount));
+        binding.finalPriceTv.setText(String.format(Locale.ENGLISH, "%s%d", inr, finalAmount));
     }
 
     @Override
-    public void onLocationDialogPositiveActionClicked(OSLocation OSLocation) {
-        if (mShop != null && mShop.getLocation() != null) {
-            User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-            GeoPoint businessGeoPoint = mShop.getLocation().getGeoPoint();
-            Log.v("TAG", "Business location: " + mShop.getLocation());
-
-            Location startLocation = new Location("start");
-            startLocation.setLatitude(businessGeoPoint.getLatitude());
-            startLocation.setLongitude(businessGeoPoint.getLongitude());
-
-            Location endLocation = new Location("end");
-            endLocation.setLatitude(OSLocation.getGeoPoint().getLatitude());
-            endLocation.setLongitude(OSLocation.getGeoPoint().getLongitude());
-
-            double distance = (startLocation.distanceTo(endLocation) / 1000);
-            double deliveryRange = mShop.getDeliveryRange();
-
-            Log.v(TAG, "Business: " + businessGeoPoint + " DLocation: " + endLocation);
-            Log.v(TAG, "Distance: " + distance + " Range: " + deliveryRange);
-            if (distance > deliveryRange) {
-                new AlertDialog.Builder(this)
-                        .setTitle(mShop.getDisplayName())
-                        .setMessage("Selected location is out of business's delivery range.")
-                        .setPositiveButton("Change", (dialog, which) -> showCreateLocationDialog())
-                        .show();
-                return;
-            }
-        }
-
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-        FirebaseFirestore.getInstance().collection(getString(R.string.ref_user))
-                .document(user.getUserId())
-                .update("location", OSLocation)
-                .addOnCompleteListener(task -> {
-                    setUpUi();
-                    Toast.makeText(this, "Update completed", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(error -> Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show());
+    public void onReceiveBroadcast(Context context, Intent intent) {
+        user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
+        setUpUi();
     }
 }

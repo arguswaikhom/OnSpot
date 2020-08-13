@@ -4,22 +4,19 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.crown.library.onspotlibrary.controller.OSPreferences;
+import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.onspot.R;
-import com.crown.onspot.model.User;
 import com.crown.onspot.page.SignInActivity;
-import com.crown.onspot.utils.preference.PreferenceKey;
-import com.crown.onspot.utils.preference.Preferences;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
@@ -87,36 +84,19 @@ public class AppController extends Application {
     public boolean isAuthenticated() {
         boolean hasAuthenticated = false;
         FirebaseAuth auth = getFirebaseAuth();
-        if (auth != null && auth.getUid() != null && !auth.getUid().isEmpty() && auth.getCurrentUser() != null) {
+        UserOS user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
+        if (auth != null && auth.getUid() != null && !auth.getUid().isEmpty() && auth.getCurrentUser() != null && user != null && !TextUtils.isEmpty(user.getUserId())) {
             hasAuthenticated = true;
         }
         return hasAuthenticated;
     }
 
-    public boolean performIfAuthenticated(Activity activity) {
-        if (isAuthenticated()) return true;
-        Toast.makeText(getApplicationContext(), "Please login and try again.", Toast.LENGTH_SHORT).show();
-        signOut(activity);
-        return false;
-    }
-
     public void signOut(Activity activity) {
-        Preferences preferences = Preferences.getInstance(getApplicationContext());
-        String token = preferences.getObject(PreferenceKey.DEVICE_TOKEN, String.class);
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
-
-        if (token != null && user != null) {
-            FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId()).update(getString(R.string.field_device_token), FieldValue.arrayRemove(token));
-        }
-        clearContent(activity);
-    }
-
-    private void clearContent(Activity activity) {
         getFirebaseAuth().signOut();
         getGoogleSignInClient().signOut();
         setFirebaseAuth(null);
         setGoogleSignInClient(null);
-        Preferences.getInstance(getApplicationContext()).clearAll();
+        OSPreferences.getInstance(getApplicationContext()).clearAll();
         getRequestQueue().getCache().clear();
         // ClearCacheData.clear(this);
 

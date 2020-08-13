@@ -5,4 +5,11 @@
         android:id="@+id/action_omo_call_business"
         android:title="Call business" />
 
+    <item
+        android:id="@+id/action_omo_call_delivery"
+        android:title="Call delivery" />
+
+    <item
+        android:id="@+id/action_omo_more_details"
+        android:title="More details" />
 </menu>

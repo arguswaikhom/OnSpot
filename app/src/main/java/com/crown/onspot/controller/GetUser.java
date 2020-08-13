@@ -5,7 +5,7 @@ import android.content.Context;
 import com.android.volley.Request;
 import com.crown.onspot.R;
 import com.crown.onspot.utils.HttpVolleyRequest;
-import com.crown.onspot.utils.abstracts.OnHttpResponse;
+import com.crown.onspot.utils.OnHttpResponse;
 
 import java.util.HashMap;
 import java.util.Map;

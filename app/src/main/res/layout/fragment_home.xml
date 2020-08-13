@@ -6,27 +6,31 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/content_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
         android:orientation="vertical"
-        tools:context=".page.NearBusinessFragment">
+        tools:context=".page.HomeFragment">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/tbar_fmo_tool_bar"
+            android:id="@+id/tool_bar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:titleTextColor="@android:color/white" />
 
-        <include layout="@layout/bottom_nav_recycler_view_layout" />
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/bottom_nav_height" />
     </LinearLayout>
 
     <include
+        android:id="@+id/info_include"
         layout="@layout/warning_text_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,8 +40,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.crown.onspot.view.ViewLoadingDotsBounce
-        android:id="@+id/view_fp_loading"
+    <com.crown.library.onspotlibrary.views.DotsBounce
+        android:id="@+id/loading"
         android:layout_width="50dp"
         android:layout_height="40dp"
         android:layout_marginBottom="160dp"

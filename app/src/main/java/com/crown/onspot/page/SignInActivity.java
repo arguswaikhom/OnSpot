@@ -13,14 +13,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.VolleyError;
+import com.crown.library.onspotlibrary.controller.OSPreferences;
+import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.OSMessage;
+import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.onspot.R;
 import com.crown.onspot.controller.AppController;
 import com.crown.onspot.controller.GetUser;
-import com.crown.onspot.model.User;
-import com.crown.onspot.utils.MessageUtils;
-import com.crown.onspot.utils.abstracts.OnHttpResponse;
-import com.crown.onspot.utils.preference.PreferenceKey;
-import com.crown.onspot.utils.preference.Preferences;
+import com.crown.onspot.utils.OnHttpResponse;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
@@ -29,12 +29,13 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SignInActivity extends AppCompatActivity implements View.OnClickListener, MessageUtils.OnSnackBarActionListener, OnHttpResponse {
+public class SignInActivity extends AppCompatActivity implements View.OnClickListener, OnHttpResponse {
     private final int RC_SIGN_IN = 100;
     private final int RC_CREATE_BUSINESS = 101;
     private final int RC_HTTP_BUSINESS_AVAILABILITY = 102;
@@ -66,7 +67,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         animationDrawable.start();*/
 
         if (AppController.getInstance().isAuthenticated()) {
-            User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
+            UserOS user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
             verifyUser(user);
         }
     }
@@ -93,11 +94,11 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     firebaseAuthWithGoogle(account);
                 } catch (ApiException e) {
-                    MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInActivity.this);
+                    OSMessage.showAIBar(this, "Sign in failed", "Retry", v -> signInWithGoogle());
                     Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
                     Log.v(TAG, "Error: " + e.getMessage());
                 } catch (Exception e) {
-                    MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInActivity.this);
+                    OSMessage.showAIBar(this, "Sign in failed", "Retry", v -> signInWithGoogle());
                     Log.w(TAG, "signInResult:failed=" + e.getStackTrace());
                     Log.v(TAG, "Error: " + e.getMessage());
                 }
@@ -114,7 +115,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void updateUserPhoneNumber(String verifiedMobileNumber) {
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
+        UserOS user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
         String userId = user.getUserId();
         Map<String, Object> map = new HashMap<>();
         map.put("phoneNumber", verifiedMobileNumber);
@@ -141,10 +142,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     GetUser.get(this);
                     mLoadingPb.setVisibility(View.VISIBLE);
                 } else {
-                    MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInActivity.this);
+                    OSMessage.showAIBar(this, "Sign in failed", "Retry", v -> signInWithGoogle());
                 }
             } else {
-                MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInActivity.this);
+                OSMessage.showAIBar(this, "Sign in failed", "Retry", v -> signInWithGoogle());
                 Log.w(TAG, "signInWithCredential:failure", task.getException());
             }
         });
@@ -162,20 +163,13 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    public void onSnackBarActionClicked(View view, int requestCode) {
-        if (requestCode == RC_SIGN_IN) {
-            signInWithGoogle();
-        }
-    }
-
-    @Override
     public void onHttpResponse(String response, int request) {
         Log.d(TAG, response);
         if (request == 0) {
             mLoadingPb.setVisibility(View.VISIBLE);
-            User user = User.fromJson(response);
-            Preferences preferences = Preferences.getInstance(getApplicationContext());
-            preferences.setObject(user, PreferenceKey.USER);
+            UserOS user = new Gson().fromJson(response, UserOS.class);
+            OSPreferences preferences = OSPreferences.getInstance(getApplicationContext());
+            preferences.setObject(user, OSPreferenceKey.USER);
             verifyUser(user);
         }
     }
@@ -185,12 +179,12 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         mLoadingPb.setVisibility(View.VISIBLE);
     }
 
-    private void verifyUser(User user) {
+    private void verifyUser(UserOS user) {
         Log.d(TAG, user.toString());
-        if (user.isHasPhoneNumberVerified() && user.getPhoneNumber() != null && !TextUtils.isEmpty(user.getPhoneNumber())) {
+        if (!TextUtils.isEmpty(user.getPhoneNumber())) {
             navigateMainActivity();
         } else {
-            verifyMobileNumber(Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class).getPhoneNumber());
+            verifyMobileNumber(OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class).getPhoneNumber());
         }
     }
 

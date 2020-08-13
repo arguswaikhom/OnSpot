@@ -1,5 +1,6 @@
 package com.crown.onspot.page;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -9,11 +10,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.crown.library.onspotlibrary.controller.OSPreferences;
+import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.onspot.R;
-import com.crown.onspot.model.User;
-import com.crown.onspot.utils.preference.PreferenceKey;
-import com.crown.onspot.utils.preference.Preferences;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.crown.onspot.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -21,26 +22,32 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity implements EventListener<DocumentSnapshot> {
     private final String TAG = MainActivity.class.getName();
+    private UserOS user;
     private ListenerRegistration mUserChangeListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        User user = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.USER, User.class);
+        Log.v("debug", "\n\nDevice info:\n" + new Gson().toJson(new android.os.Build()) + "\n\n");
+
+        user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
         mUserChangeListener = FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId()).addSnapshotListener(this);
-
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        // AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_profile).build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        // NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(navView, navController);
+        NavigationUI.setupWithNavController(binding.navView, navController);
 
-        uploadDeviceToken();
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(result -> {
+            if (user.getDeviceToken() == null || user.getDeviceToken().isEmpty() || !user.getDeviceToken().contains(result.getToken())) {
+                FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId())
+                        .update(getString(R.string.field_device_token), FieldValue.arrayUnion(result.getToken()));
+            }
+        });
     }
 
     @Override
@@ -52,42 +59,13 @@ public class MainActivity extends AppCompatActivity implements EventListener<Doc
     @Override
     public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
         if (snapshot != null && snapshot.exists()) {
-            User user = snapshot.toObject(User.class);
+            UserOS user = snapshot.toObject(UserOS.class);
             if (user != null) {
-                Preferences preferences = Preferences.getInstance(getApplicationContext());
-                preferences.setObject(user, PreferenceKey.USER);
+                this.user = user;
+                OSPreferences.getInstance(getApplicationContext()).setObject(user, OSPreferenceKey.USER);
+                Intent intent = new Intent(getString(R.string.action_os_changes));
+                sendBroadcast(intent);
             }
         }
-    }
-
-    private void uploadDeviceToken() {
-        String token = Preferences.getInstance(getApplicationContext()).getObject(PreferenceKey.DEVICE_TOKEN, String.class);
-        Log.v(TAG, "Token state: " + token);
-        if (token == null) {
-            Log.v(TAG, "Getting token");
-            FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
-                Log.v(TAG, "" + task.isSuccessful());
-
-                if (task.isSuccessful()) {
-                    Log.v(TAG, "Token: " + task.getResult().getToken());
-                    sendDeviceToken(task.getResult().getToken());
-                }
-            }).addOnFailureListener(error -> Log.v(TAG, "#####\n" + error + "\n#####"));
-        }
-    }
-
-    private void sendDeviceToken(String token) {
-        Preferences preferences = Preferences.getInstance(getApplicationContext());
-        User user = preferences.getObject(PreferenceKey.USER, User.class);
-
-        String field = getString(R.string.field_device_token);
-        FirebaseFirestore.getInstance().collection(getString(R.string.ref_user))
-                .document(user.getUserId())
-                .update(field, FieldValue.arrayUnion(token))
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        preferences.setObject(token, PreferenceKey.DEVICE_TOKEN);
-                    }
-                });
     }
 }
