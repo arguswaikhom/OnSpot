@@ -4,6 +4,7 @@
         <item name="colorPrimary">@color/quantum_black_100</item>
         <item name="colorPrimaryDark">@color/quantum_black_100</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
     <style name="Material.NoActionBar">
@@ -11,6 +12,16 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="Material.NoActionBar.LightOptionMenu">
+        <item name="android:actionOverflowButtonStyle">
+            @style/Material.NoActionBar.LightOptionMenu.OverFlow
+        </item>
+    </style>
+
+    <style name="Material.NoActionBar.LightOptionMenu.OverFlow">
+        <item name="android:src">@drawable/ic_round_more_vert_24</item>
     </style>
 
     <style name="Material.NoActionBar.GreyStatusBar">
@@ -49,5 +60,4 @@
     <style name="Material.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Material.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
 </resources>

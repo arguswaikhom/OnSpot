@@ -12,12 +12,13 @@
         android:layout_height="200dp"
         android:scaleType="centerCrop"
         android:src="@drawable/world_map"
-        android:tint="@android:color/white" />
+        app:tint="@android:color/white" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/bottom_nav_height"
         android:clipToPadding="false"
         android:scrollbars="none"
         android:scrollingCache="true">
@@ -25,6 +26,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.Toolbar
@@ -79,138 +82,35 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_middle"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_middle">
+            <com.crown.library.onspotlibrary.views.OSProfileItem
+                android:id="@+id/edit_profile_opi"
+                style="@style/ProfileMenuStyle"
+                app:icon="@drawable/ic_round_edit_24"
+                app:title="@string/title_edit_profile" />
 
-                <LinearLayout
-                    android:id="@+id/ll_fp_share"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="70dp"
-                    android:orientation="horizontal"
-                    android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
+            <com.crown.library.onspotlibrary.views.OSProfileItem
+                android:id="@+id/contact_us_opi"
+                style="@style/ProfileMenuStyle"
+                app:icon="@drawable/ic_round_contact_support_24"
+                app:title="@string/title_contact_us" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Share"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/grey_5" />
+            <com.crown.library.onspotlibrary.views.OSProfileItem
+                android:id="@+id/share_opi"
+                style="@style/ProfileMenuStyle"
+                app:icon="@drawable/ic_baseline_share_24"
+                app:title="@string/title_share" />
 
-                    <View
-                        android:layout_width="@dimen/spacing_large"
-                        android:layout_height="wrap_content" />
+            <com.crown.library.onspotlibrary.views.OSProfileItem
+                android:id="@+id/rate_this_app_opi"
+                style="@style/ProfileMenuStyle"
+                app:icon="@drawable/ic_round_favorite_24"
+                app:title="@string/title_rate_app" />
 
-                    <ImageButton
-                        android:layout_width="@dimen/spacing_xmlarge"
-                        android:layout_height="@dimen/spacing_xmlarge"
-                        android:background="@android:color/transparent"
-                        android:tint="@color/grey_5"
-                        app:srcCompat="@drawable/ic_baseline_share_24" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginLeft="@dimen/spacing_large"
-                    android:layout_marginRight="@dimen/spacing_large"
-                    android:background="@color/text_hint" />
-
-                <LinearLayout
-                    android:id="@+id/ll_fp_contact_us"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="70dp"
-                    android:orientation="horizontal"
-                    android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Contact us"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/grey_5" />
-
-                    <View
-                        android:layout_width="@dimen/spacing_large"
-                        android:layout_height="wrap_content" />
-
-                    <ImageButton
-                        android:layout_width="@dimen/spacing_xmlarge"
-                        android:layout_height="@dimen/spacing_xmlarge"
-                        android:background="@android:color/transparent"
-                        android:tint="@color/grey_5"
-                        app:srcCompat="@drawable/ic_baseline_contact_support_24" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginLeft="@dimen/spacing_large"
-                    android:layout_marginRight="@dimen/spacing_large"
-                    android:background="@color/text_hint" />
-
-                <LinearLayout
-                    android:id="@+id/ll_fp_logout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="70dp"
-                    android:orientation="horizontal"
-                    android:paddingLeft="@dimen/spacing_large"
-                    android:paddingRight="@dimen/spacing_large">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-light"
-                        android:text="Logout"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/grey_5" />
-
-                    <View
-                        android:layout_width="@dimen/spacing_large"
-                        android:layout_height="wrap_content" />
-
-                    <ImageButton
-                        android:layout_width="@dimen/spacing_xmlarge"
-                        android:layout_height="@dimen/spacing_xmlarge"
-                        android:background="@android:color/transparent"
-                        android:tint="@color/grey_5"
-                        app:srcCompat="@android:drawable/ic_lock_power_off" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginLeft="@dimen/spacing_large"
-                    android:layout_marginRight="@dimen/spacing_large"
-                    android:background="@color/text_hint" />
-
-            </LinearLayout>
+            <com.crown.library.onspotlibrary.views.OSProfileItem
+                android:id="@+id/logout_opi"
+                style="@style/ProfileMenuStyle"
+                app:icon="@android:drawable/ic_lock_power_off"
+                app:title="@string/title_logout" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

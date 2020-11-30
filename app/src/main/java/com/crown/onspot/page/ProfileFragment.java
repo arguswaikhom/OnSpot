@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,52 +13,50 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.crown.library.onspotlibrary.controller.OSPreferences;
 import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.page.EditProfileActivity;
+import com.crown.library.onspotlibrary.utils.OSCommonIntents;
 import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
-import com.crown.onspot.R;
 import com.crown.onspot.controller.AppController;
-
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import com.crown.onspot.databinding.FragmentProfileBinding;
 
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = ProfileFragment.class.getName();
-    private ImageView mProfileImageIV;
-    private TextView mDisplayNameTV;
-    private TextView mEmailTV;
+    private UserOS user;
+    private FragmentProfileBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_profile, container, false);
-        ButterKnife.bind(this, root);
+        binding = FragmentProfileBinding.inflate(inflater, container, false);
+        user = OSPreferences.getInstance(getContext().getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
 
-        initiateUi(root);
-        setUpUi();
-        return root;
+        setUpMenuClickListener();
+        return binding.getRoot();
     }
 
-    private void initiateUi(View root) {
-        mProfileImageIV = root.findViewById(R.id.iv_fp_profile_image);
-        mDisplayNameTV = root.findViewById(R.id.tv_fp_display_name);
-        mEmailTV = root.findViewById(R.id.tv_fp_email);
+    @Override
+    public void onStart() {
+        super.onStart();
+        setUpUi();
+    }
+
+    private void setUpMenuClickListener() {
+        binding.editProfileOpi.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), EditProfileActivity.class);
+            intent.putExtra(EditProfileActivity.USER_ID, user.getUserId());
+            startActivity(intent);
+        });
+        binding.contactUsOpi.setOnClickListener(v -> startActivity(new Intent(getContext(), ContactUsActivity.class)));
+        binding.shareOpi.setOnClickListener(v -> OSCommonIntents.onIntentShareAppLink(getContext()));
+        binding.rateThisAppOpi.setOnClickListener(v -> OSCommonIntents.onIntentAppOnPlayStore(getContext()));
+        binding.logoutOpi.setOnClickListener(v -> AppController.getInstance().signOut(getActivity()));
     }
 
     private void setUpUi() {
-        UserOS user = OSPreferences.getInstance(getContext().getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
         Glide.with(this)
                 .load(user.getProfileImageUrl())
                 .apply(new RequestOptions().centerCrop().circleCrop())
-                .into(mProfileImageIV);
-        mDisplayNameTV.setText(user.getDisplayName());
-        mEmailTV.setText(user.getEmail());
-    }
-
-    @OnClick(R.id.ll_fp_logout)
-    void onClickedLogout() {
-        AppController.getInstance().signOut(getActivity());
-    }
-
-    @OnClick(R.id.ll_fp_contact_us)
-    void onClickedContactUs() {
-        startActivity(new Intent(getContext(), ContactUsActivity.class));
+                .into(binding.ivFpProfileImage);
+        binding.tvFpDisplayName.setText(user.getDisplayName());
+        binding.tvFpEmail.setText(user.getEmail());
     }
 }

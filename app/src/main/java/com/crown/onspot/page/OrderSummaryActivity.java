@@ -27,6 +27,7 @@ import com.crown.library.onspotlibrary.utils.BusinessItemUtils;
 import com.crown.library.onspotlibrary.utils.OSBroadcastReceiver;
 import com.crown.library.onspotlibrary.utils.OSLocationUtils;
 import com.crown.library.onspotlibrary.utils.OSMessage;
+import com.crown.library.onspotlibrary.utils.OSString;
 import com.crown.library.onspotlibrary.utils.callback.OnReceiveOSBroadcasts;
 import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.library.onspotlibrary.utils.emun.OrderStatus;
@@ -57,13 +58,19 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
     private ArrayList<OSCart> orders;
     private BusinessV4 business;
     private UserOS user;
+    private final CreateContactDialog.OnContactSubmit onContactSubmit = (name, phoneNo) -> {
+        if (!phoneNo.trim().replace("+91", "").equals(user.getPhoneNumber().trim().replace("+91", ""))) {
+            Intent intent = new Intent(this, PhoneVerificationActivity.class);
+            intent.putExtra(PhoneVerificationActivity.KEY_PHONE_NO, phoneNo);
+            startActivityForResult(intent, RC_INTENT_VERIFY_MOBILE_NUMBER);
+        }
+    };
     private long itemCost;
     private long totalTax;
     private long finalAmount;
-
     private LoadingBounceDialog loadingBounce;
     private ActivityOrderSummaryBinding binding;
-    private CreateLocationDialog.OnLocationSubmit onLocationChange = location -> {
+    private final CreateLocationDialog.OnLocationSubmit onLocationChange = location -> {
         if (business != null && business.getLocation() != null) {
             double distance = OSLocationUtils.getDistance(business.getLocation(), location);
             if (distance > business.getDeliveryRange()) {
@@ -80,13 +87,6 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
                 .update(getString(R.string.field_location), location)
                 .addOnSuccessListener(result -> Toast.makeText(this, "Update completed", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(error -> OSMessage.showAIBar(this, "Location update failed!!", "Retry", v -> binding.changeAddressBtn.performClick()));
-    };
-    private CreateContactDialog.OnContactSubmit onContactSubmit = (name, phoneNo) -> {
-        if (!phoneNo.trim().replace("+91", "").equals(user.getPhoneNumber().trim().replace("+91", ""))) {
-            Intent intent = new Intent(this, PhoneVerificationActivity.class);
-            intent.putExtra(PhoneVerificationActivity.KEY_PHONE_NO, phoneNo);
-            startActivityForResult(intent, RC_INTENT_VERIFY_MOBILE_NUMBER);
-        }
     };
 
     @Override
@@ -113,10 +113,14 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
             showOrder();
         }
 
-        String json = getIntent().getStringExtra(BUSINESS);
-        if (json != null && !json.isEmpty()) {
-            business = new Gson().fromJson(json, BusinessV4.class);
-        }
+        String businessRefId = getIntent().getStringExtra(BUSINESS);
+        assert businessRefId != null;
+        FirebaseFirestore.getInstance().collection(OSString.refBusiness).document(businessRefId).get()
+                .addOnSuccessListener(documentSnapshot -> business = documentSnapshot.toObject(BusinessV4.class))
+                .addOnFailureListener(e -> {
+                    OSMessage.showSToast(this, "Failed to get business info!!");
+                    onBackPressed();
+                });
     }
 
     @Override
@@ -169,6 +173,11 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
     }
 
     private void onClickedSubmit(View view) {
+        if (business == null) {
+            OSMessage.showSBar(this, "Business info loading... please wait");
+            return;
+        }
+
         OSOrderUpload orderUpload = createOrder();
         if (orderUpload == null) return;
         loadingBounce.show();

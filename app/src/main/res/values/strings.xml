@@ -14,6 +14,7 @@
 
     <string name="domain">https://us-central1-crown-onspot.cloudfunctions.net</string>
     <string name="msg_phone_verification">You will get SMS with a confirmation code to this number.</string>
+    <string name="msg_delivery_rating">Only business owners and &#x3C;b&#x3E; %1$s &#x3C;/b&#x3E; can see</string>
 
     <string name="ref_business">business</string>
     <string name="ref_user">user</string>
@@ -31,4 +32,6 @@
 
     <!--Button-->
     <string name="action_order_now">Order now</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

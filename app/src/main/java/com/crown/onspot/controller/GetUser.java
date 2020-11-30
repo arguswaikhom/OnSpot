@@ -3,7 +3,7 @@ package com.crown.onspot.controller;
 import android.content.Context;
 
 import com.android.volley.Request;
-import com.crown.onspot.R;
+import com.crown.library.onspotlibrary.utils.OSString;
 import com.crown.onspot.utils.HttpVolleyRequest;
 import com.crown.onspot.utils.OnHttpResponse;
 
@@ -20,13 +20,12 @@ public class GetUser {
     }
 
     private static void getUserDetails(Context context, int request) {
-        String url = context.getResources().getString(R.string.domain) + "/getUser/";
         String userId = AppController.getInstance().getFirebaseAuth().getUid();
 
         Map<String, String> param = new HashMap<>();
         param.put("userId", userId);
 
-        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, request, null, param, (OnHttpResponse) context);
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, OSString.apiGetUser, null, request, null, param, (OnHttpResponse) context);
         httpVolleyRequest.execute();
     }
 }

@@ -36,6 +36,7 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        OSPreferences.getInstance(this).setObject(getString(R.string.package_onspot), OSPreferenceKey.APP_PACKAGE);
     }
 
     public RequestQueue getRequestQueue() {

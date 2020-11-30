@@ -23,9 +23,9 @@ import java.util.Locale;
 
 public class OldOrderVH extends RecyclerView.ViewHolder {
 
-    private Context context;
+    private final Context context;
+    private final LiOldOrderBinding binding;
     private OSOldOrder order;
-    private LiOldOrderBinding binding;
 
     public OldOrderVH(@NonNull View itemView) {
         super(itemView);

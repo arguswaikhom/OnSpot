@@ -41,9 +41,9 @@ import java.util.Map;
 
 public class CurrentOrderVH extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
 
+    private final Context context;
+    private final LiCurrentOrderBinding binding;
     private OSOrder order;
-    private Context context;
-    private LiCurrentOrderBinding binding;
 
     public CurrentOrderVH(@NonNull View itemView) {
         super(itemView);

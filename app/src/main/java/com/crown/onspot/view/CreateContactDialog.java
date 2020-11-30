@@ -14,6 +14,7 @@ import com.crown.onspot.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+@Deprecated
 public class CreateContactDialog extends DialogFragment {
     public static final String PHONE_NO = "PHONE_NO";
     public static final String NAME = "NAME";

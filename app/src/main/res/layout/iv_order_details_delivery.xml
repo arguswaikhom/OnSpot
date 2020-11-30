@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/delivery_root_cl"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/delivery_image_iv"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@color/order_status_ready"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/delivery_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/delivery_image_iv"
+        app:layout_constraintTop_toTopOf="@+id/delivery_image_iv"
+        tools:text="James Rocks" />
+
+    <RatingBar
+        android:id="@+id/delivery_rbar"
+        style="@style/Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/delivery_image_iv"
+        app:layout_constraintStart_toStartOf="@+id/delivery_name_tv"
+        app:layout_constraintTop_toBottomOf="@+id/delivery_name_tv" />
+
+    <TextView
+        android:id="@+id/review_count_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/delivery_rbar"
+        app:layout_constraintStart_toEndOf="@+id/delivery_rbar"
+        app:layout_constraintTop_toTopOf="@+id/delivery_rbar"
+        tools:text="5 reviews" />
+
+    <ImageView
+        android:id="@+id/delivery_call_iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_phone_24"
+        app:layout_constraintBottom_toBottomOf="@+id/delivery_image_iv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/delivery_image_iv"
+        app:tint="@color/order_status_ordered" />
+</androidx.constraintlayout.widget.ConstraintLayout>

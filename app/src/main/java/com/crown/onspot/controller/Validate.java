@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class Validate {
 
     public static boolean isEmail(String email) {

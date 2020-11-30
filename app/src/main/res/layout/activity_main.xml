@@ -28,6 +28,7 @@
             android:background="@color/quantum_black_100"
             app:itemIconTint="@color/grey_5"
             app:itemTextColor="@color/grey_5"
+            app:labelVisibilityMode="labeled"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

@@ -58,6 +58,7 @@
                     style="?android:attr/actionOverflowButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="26dp"
+                    android:background="@android:color/transparent"
                     android:tint="@android:color/darker_gray"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
