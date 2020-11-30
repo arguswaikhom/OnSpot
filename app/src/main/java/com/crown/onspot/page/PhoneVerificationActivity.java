@@ -26,6 +26,7 @@ import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCall
 
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class PhoneVerificationActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String KEY_PHONE_NO = "PHONE_NO";
     public static final String TAG = PhoneVerificationActivity.class.getName();
@@ -40,8 +41,7 @@ public class PhoneVerificationActivity extends AppCompatActivity implements View
     private ForceResendingToken mResendToken;
     private String mVerificationID;
     private String mPhoneNumber;
-    private boolean mHasSentCodeBefore = false;
-    private OnVerificationStateChangedCallbacks mPhoneVerificationCallBack = new OnVerificationStateChangedCallbacks() {
+    private final OnVerificationStateChangedCallbacks mPhoneVerificationCallBack = new OnVerificationStateChangedCallbacks() {
         @Override
         public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
             mVerificationCodeTIET.setText(phoneAuthCredential.getSmsCode());
@@ -67,6 +67,7 @@ public class PhoneVerificationActivity extends AppCompatActivity implements View
             Toast.makeText(getApplicationContext(), "OTP sent", Toast.LENGTH_SHORT).show();
         }
     };
+    private boolean mHasSentCodeBefore = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

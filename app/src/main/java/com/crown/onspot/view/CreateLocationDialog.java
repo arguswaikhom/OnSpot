@@ -27,6 +27,7 @@ import static com.schibstedspain.leku.LocationPickerActivityKt.LOCATION_ADDRESS;
 import static com.schibstedspain.leku.LocationPickerActivityKt.LONGITUDE;
 import static com.schibstedspain.leku.LocationPickerActivityKt.ZIPCODE;
 
+@Deprecated
 public class CreateLocationDialog extends DialogFragment implements View.OnClickListener {
     public static final String KEY_LOCATION = "LOCATION";
     private final int RC_INTENT_SELECT_LOCATION_FROM_MAP = 1;
