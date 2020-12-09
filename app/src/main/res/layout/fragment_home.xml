@@ -40,28 +40,17 @@
             android:id="@+id/list_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/bottom_nav_height"
-            tools:listitem="@layout/li_business_home" />
+            android:layout_marginBottom="@dimen/bottom_nav_height" />
     </LinearLayout>
 
-    <!--<include
-        android:id="@+id/info_include"
-        layout="@layout/warning_text_layout"
+    <com.crown.library.onspotlibrary.views.OSIllustrationView
+        android:id="@+id/info_illv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="160dp"
-        app:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <com.crown.library.onspotlibrary.views.DotsBounce
-        android:id="@+id/loading"
-        android:layout_width="50dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="160dp"
-        android:background="@color/blue_grey_900"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />-->
+        app:layout_constraintStart_toStartOf="parent"
+        tools:illustration="@drawable/ill_undraw_city_girl_ccpd"
+        tools:text="No active seller in your area" />
 </androidx.constraintlayout.widget.ConstraintLayout>

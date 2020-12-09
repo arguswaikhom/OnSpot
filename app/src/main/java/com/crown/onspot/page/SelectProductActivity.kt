@@ -154,12 +154,14 @@ class SelectProductActivity : AppCompatActivity() {
             else onBackPressed()
             return true
         } else if (item.itemId == R.id.nav_oooa_call_business) {
-            OSContactReacher.getBusinessMobileNumber(this, bussId, { value: String? ->
-                if (!this.isFinishing) OSCommonIntents.onIntentCallRequest(this, value!!)
-            }) { _: java.lang.Exception?, _: String? ->
-                OSMessage.showSBar(this, getString(R.string.msg_get_contact_failed))
-            }
-            return true
+            if (AppController.getInstance().isAuthenticated) {
+                OSContactReacher.getBusinessMobileNumber(this, bussId, { value: String? ->
+                    if (!this.isFinishing) OSCommonIntents.onIntentCallRequest(this, value!!)
+                }) { _: java.lang.Exception?, _: String? ->
+                    OSMessage.showSBar(this, getString(R.string.msg_get_contact_failed))
+                }
+                return true
+            } else navToLoginPage()
         }
         return super.onOptionsItemSelected(item)
     }

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,21 +54,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// todo: use OSVolley to maintain cache
-public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
-    private static final String TAG = HomeFragment.class.getName();
-    private static final int RC_GET_BUSINESS = 1;
-    private final int INDEX_HOD_FILTER_MENU_SWITCH = 0;
+public class HomeFragment extends Fragment {
+    private final List<ListItem> mDataset = new ArrayList<>();
     private boolean forceRefresh;
     private SwitchMaterial hodFilterSwitch;
-    private List<ListItem> mDataset;
     private ListItemAdapter mAdapter;
     private FragmentHomeBinding binding;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDataset = new ArrayList<>();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,13 +75,6 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
         setUpUI();
         return binding.getRoot();
     }
-
-    /*@Override
-    public void onStart() {
-        super.onStart();
-        if (binding.loading.getVisibility() == View.VISIBLE)
-            binding.loading.setVisibility(View.INVISIBLE);
-    }*/
 
     private void setUpUI() {
         binding.listRv.setHasFixedSize(true);
@@ -102,6 +89,7 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
         inflater.inflate(R.menu.home_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
 
+        int INDEX_HOD_FILTER_MENU_SWITCH = 0;
         hodFilterSwitch = (SwitchMaterial) menu.getItem(INDEX_HOD_FILTER_MENU_SWITCH).getActionView();
         hodFilterSwitch.setOnCheckedChangeListener(this::onHODFilterChanged);
         refreshHodFilterSwitch();
@@ -110,6 +98,7 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
     @Override
     public void onResume() {
         super.onResume();
+        binding.infoIllv.hide();
         getContent();
     }
 
@@ -136,102 +125,6 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
         getContent();
     }
 
-    /*private void getBusiness(GeoPoint geoPoint) {
-        Map<String, String> map = new HashMap<>();
-        map.put("data", new Gson().toJson(geoPoint));
-
-        Entry entry = AppController.getInstance().getRequestQueue().getCache().get(OSString.apiGetUserAllBusiness);
-        if (entry != null) {
-            if (entry.isExpired()) {
-                HttpVolleyRequest request = new HttpVolleyRequest(Request.Method.POST, OSString.apiGetUserAllBusiness, null, RC_GET_BUSINESS, null, map, this);
-                request.execute();
-            }
-
-            String data = new String(entry.data, StandardCharsets.UTF_8);
-            updateBusiness(data);
-            return;
-        }
-
-        binding.loading.setVisibility(View.VISIBLE);
-        HttpVolleyRequest request = new HttpVolleyRequest(Request.Method.POST, OSString.apiGetUserAllBusiness, null, RC_GET_BUSINESS, null, map, this);
-        request.execute();
-    }*/
-
-    /*@SuppressLint("SetTextI18n")
-    @Override
-    public void onHttpResponse(String response, int request) {
-        if (binding.loading.getVisibility() == View.VISIBLE)
-            binding.loading.setVisibility(View.GONE);
-
-        if (request == RC_GET_BUSINESS) {
-            JSONObject object = OSJsonParse.stringToObject(response);
-            String status = OSJsonParse.stringFromObject(object, "status");
-            if (status.equals("200") || status.equals("204")) {
-                addNearBusinessToCache(response);
-                updateBusiness(response);
-            } else {
-                addNearBusinessToCache(null);
-                binding.infoInclude.warningTv.setText("Something went wrong");
-                binding.infoInclude.warningTv.setVisibility(View.VISIBLE);
-            }
-        }
-    }*/
-
-    /*private void addNearBusinessToCache(String response) {
-        Cache cache = AppController.getInstance().getRequestQueue().getCache();
-        Entry cacheEntry = new Entry();
-
-        if (response == null) {
-            cache.put(OSString.apiGetUserAllBusiness, null);
-            return;
-        }
-
-        cacheEntry.ttl = System.currentTimeMillis() + 120000;
-        cacheEntry.data = response.getBytes();
-        cache.put(OSString.apiGetUserAllBusiness, cacheEntry);
-    }*/
-
-    /*private void updateBusiness(String response) {
-        JSONObject object = OSJsonParse.stringToObject(response);
-        String status = OSJsonParse.stringFromObject(object, "status");
-
-        mDataset.clear();
-        if (status.equals("204")) {
-            mAdapter.notifyDataSetChanged();
-            binding.infoInclude.warningTv.setText("No business available in your area");
-            binding.infoInclude.warningTv.setVisibility(View.VISIBLE);
-            return;
-        }
-        binding.infoInclude.warningTv.setVisibility(View.INVISIBLE);
-
-        JSONArray array = OSJsonParse.arrayFromObject(object, "data");
-        for (int i = 0; i < array.length(); i++) {
-            try {
-                BusinessV4 business = new Gson().fromJson(array.get(i).toString(), BusinessV4.class);
-                mDataset.add(business);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        mAdapter.notifyDataSetChanged();
-    }*/
-
-    /*@Override
-    public void onHttpErrorResponse(VolleyError error, int request) {
-        Log.v(TAG, error.toString());
-        binding.loading.setVisibility(View.GONE);
-
-        Entry entry = AppController.getInstance().getRequestQueue().getCache().get(OSString.apiGetUserAllBusiness);
-        if (entry == null) {
-            binding.infoInclude.warningTv.setText("Something went wrong");
-            binding.infoInclude.warningTv.setVisibility(View.VISIBLE);
-        } else {
-            binding.infoInclude.warningTv.setVisibility(View.INVISIBLE);
-        }
-    }*/
-
-
-    ////////////////////////////////////////////////
     private void getContent() {
         OSOnSpotAppPreferences preferences = OSAppPreferenceUtils.getOSPreferences(getContext());
         OSAPOnSpotHomeHODFilter filter = preferences.getHomeHODFilter();
@@ -251,10 +144,7 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
         }
         if (volley.isCacheExpired(cacheKey) || forceRefresh || contentLength == 0) {
             if (forceRefresh) forceRefresh = false;
-            Log.d("debug", "Http called");
             getCurrentLocation();
-        } else {
-            Log.d("debug", "Cache");
         }
     }
 
@@ -295,7 +185,7 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
             displayContent(response);
         }, error -> {
             binding.loadingBounce.setVisibility(View.INVISIBLE);
-            OSMessage.showSToast(getActivity(), "Failed to get data!!");
+            binding.infoIllv.show(R.drawable.ill_undraw_empty_xct9, "Failed to get data!!");
         }) {
             @Override
             protected Map<String, String> getParams() {
@@ -309,8 +199,6 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
     }
 
     private void displayContent(String content) {
-        Log.d("debug", content);
-
         try {
             JSONObject object = new JSONObject(content);
             JSONArray data = object.getJSONArray(OSString.data);
@@ -327,8 +215,9 @@ public class HomeFragment extends Fragment /*implements OnHttpResponse*/ {
             }
             mAdapter.notifyDataSetChanged();
 
-            if (getActivity() != null && data.length() == 0)
-                OSMessage.showSBar(getActivity(), "No business found in your area.");
+            if (getActivity() != null && data.length() == 0) {
+                binding.infoIllv.show(R.drawable.ill_undraw_city_girl_ccpd, "No active seller in your area");
+            } else binding.infoIllv.hide();
         } catch (Exception ignore) {
         }
     }

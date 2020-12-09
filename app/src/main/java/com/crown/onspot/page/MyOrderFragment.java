@@ -18,6 +18,7 @@ import com.crown.library.onspotlibrary.model.UnSupportedContent;
 import com.crown.library.onspotlibrary.model.order.OSOldOrder;
 import com.crown.library.onspotlibrary.model.order.OSOrder;
 import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.OSListUtils;
 import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.library.onspotlibrary.utils.emun.OrderStatus;
 import com.crown.onspot.BuildConfig;
@@ -47,7 +48,6 @@ public class MyOrderFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMyOrderBinding.inflate(inflater, container, false);
-        binding.toolBar.setTitle("My Order");
         ((AppCompatActivity) getActivity()).setSupportActionBar(binding.toolBar);
         setUpRecycler();
         user = OSPreferences.getInstance(getContext().getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
@@ -73,10 +73,8 @@ public class MyOrderFragment extends Fragment {
     }
 
     public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
-        if (snapshots == null) {
-
-        } else if (snapshots.isEmpty()) {
-
+        if (snapshots == null || snapshots.isEmpty()) {
+            binding.infoIllv.show(R.drawable.ill_undraw_confirmation_re_b6q5, "No order to display");
         } else {
             updateItemList(snapshots.getDocuments());
         }
@@ -117,5 +115,9 @@ public class MyOrderFragment extends Fragment {
             mDataset.addAll(temp);
         }
         mAdapter.notifyDataSetChanged();
+
+        if (OSListUtils.isEmpty(mDataset)) {
+            binding.infoIllv.show(R.drawable.ill_undraw_confirmation_re_b6q5, "No order to display");
+        } else binding.infoIllv.hide();
     }
 }

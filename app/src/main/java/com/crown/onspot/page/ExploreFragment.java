@@ -2,14 +2,12 @@ package com.crown.onspot.page;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.android.volley.Request;
@@ -17,7 +15,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.crown.library.onspotlibrary.controller.OSVolley;
 import com.crown.library.onspotlibrary.model.ListItem;
 import com.crown.library.onspotlibrary.model.explore.OSExplore;
-import com.crown.library.onspotlibrary.utils.OSMessage;
+import com.crown.library.onspotlibrary.utils.OSListUtils;
 import com.crown.library.onspotlibrary.utils.OSString;
 import com.crown.onspot.R;
 import com.crown.onspot.databinding.FragmentExploreBinding;
@@ -49,8 +47,6 @@ public class ExploreFragment extends Fragment {
     private void init() {
         adapter = new ListItemAdapter(dataset);
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        binding.exploreListRv.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
-        binding.exploreListRv.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         binding.exploreListRv.setLayoutManager(layoutManager);
         binding.exploreListRv.setAdapter(adapter);
         binding.searchSv.setOnSearchClickedListener(this::onExploreSearch);
@@ -72,8 +68,7 @@ public class ExploreFragment extends Fragment {
                 displayDataset(response);
             }, error -> {
                 binding.searchSv.dismissProcessing();
-                if (getActivity() != null)
-                    OSMessage.showSBar(getActivity(), getString(R.string.msg_something_went_wrong));
+                binding.infoIllv.show(R.drawable.ill_undraw_empty_xct9, "Failed to get data!!");
             }));
         }
     }
@@ -82,7 +77,6 @@ public class ExploreFragment extends Fragment {
         dataset.clear();
         try {
             JSONArray array = new JSONArray(json);
-            // todo: handle empty response
             try {
                 for (int i = 0; i < array.length(); i++) {
                     dataset.add(OSExplore.fromJson(array.get(i).toString()));
@@ -90,28 +84,29 @@ public class ExploreFragment extends Fragment {
             } catch (JSONException ignore) {
             }
         } catch (JSONException ignore) {
-            if (getActivity() != null)
-                OSMessage.showSBar(getActivity(), getString(R.string.msg_something_went_wrong));
+            binding.infoIllv.show(R.drawable.ill_undraw_void_3ggu, getString(R.string.msg_something_went_wrong));
         }
         Collections.shuffle(dataset);
         adapter.notifyDataSetChanged();
         binding.searchSv.dismissProcessing();
+        if (OSListUtils.isEmpty(dataset)) {
+            binding.infoIllv.show(R.drawable.ill_undraw_search_re_x5gq, "Empty response!!");
+        }
     }
 
     private void onExploreSearch(String keywords) {
         if (TextUtils.isEmpty(keywords)) return;
+        binding.searchSv.hideKeyboard();
 
         // todo: control double submit clicks without keyword changes
 
         binding.searchSv.showProcessing();
         OSVolley.getInstance(getContext()).addToRequestQueue(new StringRequest(Request.Method.POST, OSString.apiExplore, response -> {
             binding.searchSv.dismissProcessing();
-            Log.d("debug", response);
             displayDataset(response);
         }, error -> {
             binding.searchSv.dismissProcessing();
-            if (getActivity() != null)
-                OSMessage.showSBar(getActivity(), getString(R.string.msg_something_went_wrong));
+            binding.infoIllv.show(R.drawable.ill_undraw_empty_xct9, "Failed to get data!!");
         }) {
             @Override
             protected Map<String, String> getParams() {
@@ -120,6 +115,5 @@ public class ExploreFragment extends Fragment {
                 return param;
             }
         });
-        OSMessage.showSToast(getContext(), keywords);
     }
 }

@@ -83,13 +83,9 @@ public class AppController extends Application {
     }
 
     public boolean isAuthenticated() {
-        boolean hasAuthenticated = false;
         FirebaseAuth auth = getFirebaseAuth();
         UserOS user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
-        if (auth != null && auth.getUid() != null && !auth.getUid().isEmpty() && auth.getCurrentUser() != null && user != null && !TextUtils.isEmpty(user.getUserId())) {
-            hasAuthenticated = true;
-        }
-        return hasAuthenticated;
+        return auth != null && !TextUtils.isEmpty(auth.getUid()) && auth.getCurrentUser() != null && user != null && !TextUtils.isEmpty(user.getUserId());
     }
 
     public void signOut(Activity activity) {

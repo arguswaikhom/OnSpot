@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/g_black"
-    android:fitsSystemWindows="false"
+    android:fitsSystemWindows="true"
     tools:context=".page.SignInActivity">
 
     <LinearLayout
@@ -36,7 +36,6 @@
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
-
     <com.shobhitpuri.custombuttons.GoogleSignInButton
         android:id="@+id/iasiwg_sign_in_button"
         android:layout_width="match_parent"
@@ -49,14 +48,4 @@
         android:text="Sign in with Google"
         app:isDarkTheme="true"
         tools:ignore="HardcodedText" />
-
-    <ProgressBar
-        android:id="@+id/pb_iasiwg_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:indeterminateTint="@android:color/white"
-        android:indeterminateTintMode="src_atop"
-        android:visibility="invisible" />
 </RelativeLayout>

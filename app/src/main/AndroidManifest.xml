@@ -55,9 +55,6 @@
             android:label="Contact Us"
             android:theme="@style/Material.NoActionBar.GreyStatusBar" />
         <activity
-            android:name=".page.PhoneVerificationActivity"
-            android:theme="@style/Material.NoActionBar" />
-        <activity
             android:name=".page.OrderSummaryActivity"
             android:label="Order summary"
             android:theme="@style/Material.NoActionBar.GreyStatusBar" />
@@ -67,7 +64,7 @@
             android:theme="@style/Material.NoActionBar.LightOptionMenu" />
         <activity
             android:name=".page.SignInActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/Material.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

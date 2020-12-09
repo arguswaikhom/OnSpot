@@ -22,164 +22,109 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="32dp"
             tools:context=".page.OrderSummaryActivity">
 
-            <com.crown.library.onspotlibrary.views.OrderItemView
-                android:id="@+id/orders_oiv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:background="@android:color/darker_gray" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <TextView
+                android:id="@+id/info_banner_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_vertical_margin">
+                android:layout_marginBottom="4dp"
+                android:background="@color/colorAccent"
+                android:padding="8dp"
+                android:visibility="gone"
+                tools:text="@string/msg_info_no_hod_business" />
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Item cost: "
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/item_cost_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="₹ 270" />
+                <com.crown.library.onspotlibrary.views.OrderItemView
+                    android:id="@+id/orders_oiv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total tax: "
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView" />
+                <View style="@style/GrayVerticalDivider" />
 
-                <TextView
-                    android:id="@+id/tax_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="@+id/item_cost_tv"
-                    app:layout_constraintTop_toBottomOf="@+id/item_cost_tv"
-                    tools:text="₹ 270" />
-
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Discount: "
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-                <TextView
-                    android:id="@+id/discount_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="@+id/tax_tv"
-                    app:layout_constraintTop_toBottomOf="@+id/tax_tv"
-                    tools:text="₹ 270" />
+                <include
+                    android:id="@+id/summary_include"
+                    layout="@layout/sub_order_summary_price_summary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:text="Final price: "
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                    android:layout_marginBottom="@dimen/primary_margin"
+                    android:text="Contact"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/sp_sub2" />
+
+                <include
+                    android:id="@+id/contact_include"
+                    layout="@layout/contact_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp" />
+
+                <Button
+                    android:id="@+id/change_contact_btn"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="Change contact" />
 
                 <TextView
-                    android:id="@+id/final_price_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    app:layout_constraintEnd_toEndOf="@+id/discount_tv"
-                    app:layout_constraintTop_toBottomOf="@+id/discount_tv"
-                    tools:text="₹ 270" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:layout_marginBottom="@dimen/primary_margin"
+                    android:text="Delivery address"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/sp_sub2" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/primary_margin"
-                android:text="Contact"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/sp_sub2" />
+                <include
+                    android:id="@+id/address_include"
+                    layout="@layout/destination_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp" />
 
-            <include
-                android:id="@+id/contact_include"
-                layout="@layout/contact_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp" />
+                <Button
+                    android:id="@+id/change_address_btn"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="Change address" />
 
-            <Button
-                android:id="@+id/change_contact_btn"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="Change contact" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginBottom="@dimen/primary_margin"
+                    android:text="Payment method"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/sp_sub2" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/primary_margin"
-                android:text="Delivery address"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/sp_sub2" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="Pay on receive order" />
 
-            <include
-                android:id="@+id/address_include"
-                layout="@layout/destination_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp" />
-
-            <Button
-                android:id="@+id/change_address_btn"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="Change address" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/primary_margin"
-                android:text="Payment method"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/sp_sub2" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="(COD) Cash on delivery only" />
-
-            <Button
-                android:id="@+id/submit_btn"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/primary_margin"
-                android:text="Submit" />
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/submit_btn"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/primary_margin"
+                    android:background="@drawable/btn_rounded_red"
+                    android:gravity="center"
+                    android:text="Submit" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

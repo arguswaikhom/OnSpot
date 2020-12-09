@@ -1,36 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@color/quantum_black_100"
     tools:context=".page.ExploreFragment">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/bottom_nav_height"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <com.crown.library.onspotlibrary.views.OSSearchView
-            android:id="@+id/search_sv"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="8dp"
-            app:backgroundColor="@color/dark_3"
-            app:hintText="@string/hint_search"
-            app:hintTextColor="@android:color/darker_gray"
-            app:showSearchButton="true" />
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/bottom_nav_height"
+            android:orientation="vertical">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/explore_list_rv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            tools:listitem="@layout/li_explore_item" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+            <com.crown.library.onspotlibrary.views.OSSearchView
+                android:id="@+id/search_sv"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                app:backgroundColor="@color/dark_3"
+                app:hintText="@string/hint_search"
+                app:hintTextColor="@android:color/darker_gray"
+                app:showSearchButton="true" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/explore_list_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.crown.library.onspotlibrary.views.OSIllustrationView
+        android:id="@+id/info_illv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="100dp"
+        app:textColor="@android:color/white"
+        tools:illustration="@drawable/ill_undraw_city_girl_ccpd"
+        tools:text="No active seller in your area" />
+</RelativeLayout>

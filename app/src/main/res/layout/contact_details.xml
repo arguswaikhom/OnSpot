@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/grey_5"
     app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -32,5 +33,4 @@
             style="@style/TextViewValue"
             tools:text="+91 9876242456" />
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>
