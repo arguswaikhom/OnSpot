@@ -154,7 +154,7 @@ class SelectProductActivity : AppCompatActivity() {
             else onBackPressed()
             return true
         } else if (item.itemId == R.id.nav_oooa_call_business) {
-            if (AppController.getInstance().isAuthenticated) {
+            if (AppController.getInstance().isAuthenticated && !TextUtils.isEmpty(bussId)) {
                 OSContactReacher.getBusinessMobileNumber(this, bussId, { value: String? ->
                     if (!this.isFinishing) OSCommonIntents.onIntentCallRequest(this, value!!)
                 }) { _: java.lang.Exception?, _: String? ->
