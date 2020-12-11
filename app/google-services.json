@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "1028049106656",
-    "firebase_url": "https://crown-onspot.firebaseio.com",
-    "project_id": "crown-onspot",
-    "storage_bucket": "crown-onspot.appspot.com"
+    "project_number": "974539191120",
+    "firebase_url": "https://bicrowny-onspotshop-default-rtdb.firebaseio.com",
+    "project_id": "bicrowny-onspotshop",
+    "storage_bucket": "bicrowny-onspotshop.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1028049106656:android:4f542012ddf5f8a7bc0285",
+        "mobilesdk_app_id": "1:974539191120:android:3f2ae07631da44afcb3255",
         "android_client_info": {
           "package_name": "com.crown.onspot"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1028049106656-qs68arjhebdql0sunbeoiuk68c88rka5.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.crown.onspot",
-            "certificate_hash": "dfd73f643490e3db837eec4fb80aee1d00dbe939"
-          }
-        },
-        {
-          "client_id": "1028049106656-76vqua3ngdlntsjlep9m44olbttguu93.apps.googleusercontent.com",
+          "client_id": "974539191120-nqvmttoc5kcdg3s8g8onbh7m4uufsd2m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAvAjaMYJZ69Ky-gP8bsA5Eh8wj4d-iAEM"
+          "current_key": "AIzaSyC-D-PJbl5OW62T2IUKkJCeArIG7PrQOlE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1028049106656-76vqua3ngdlntsjlep9m44olbttguu93.apps.googleusercontent.com",
+              "client_id": "974539191120-nqvmttoc5kcdg3s8g8onbh7m4uufsd2m.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
