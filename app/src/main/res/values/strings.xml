@@ -11,27 +11,11 @@
     <string name="action_ok">OK</string>
     <string name="action_cancel">Cancel</string>
     <string name="key_api">AIzaSyAvAjaMYJZ69Ky-gP8bsA5Eh8wj4d-iAEM</string>
-
     <string name="domain">https://us-central1-crown-onspot.cloudfunctions.net</string>
     <string name="msg_phone_verification">You will get SMS with a confirmation code to this number.</string>
     <string name="msg_delivery_rating">Only business owners and &#x3C;b&#x3E; %1$s &#x3C;/b&#x3E; can see</string>
-
-    <string name="ref_business">business</string>
-    <string name="ref_user">user</string>
-    <string name="ref_order">order</string>
-    <string name="sub_ref_item">item</string>
-    <string name="sub_ref_contact">contact</string>
-    <string name="sub_ref_destination">address</string>
-
-    <string name="field_device_token">deviceToken</string>
-
     <string name="title_activity_contact">ContactActivity</string>
-
     <string name="instagram">\@onspotapp</string>
     <string name="gmail">onspotbusiness@gmail.com</string>
-
-    <!--Button-->
     <string name="action_order_now">Order now</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

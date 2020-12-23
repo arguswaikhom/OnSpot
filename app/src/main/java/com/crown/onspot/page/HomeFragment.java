@@ -184,6 +184,7 @@ public class HomeFragment extends Fragment {
             volley.setCache(filter + OSString.apiGetUserBusiness, response, 300000L);
             displayContent(response);
         }, error -> {
+            error.printStackTrace();
             binding.loadingBounce.setVisibility(View.INVISIBLE);
             binding.infoIllv.show(R.drawable.ill_undraw_empty_xct9, "Failed to get data!!");
         }) {

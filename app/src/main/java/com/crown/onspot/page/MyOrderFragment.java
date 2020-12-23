@@ -19,6 +19,7 @@ import com.crown.library.onspotlibrary.model.order.OSOldOrder;
 import com.crown.library.onspotlibrary.model.order.OSOrder;
 import com.crown.library.onspotlibrary.model.user.UserOS;
 import com.crown.library.onspotlibrary.utils.OSListUtils;
+import com.crown.library.onspotlibrary.utils.OSString;
 import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.library.onspotlibrary.utils.emun.OrderStatus;
 import com.crown.onspot.BuildConfig;
@@ -51,8 +52,8 @@ public class MyOrderFragment extends Fragment {
         ((AppCompatActivity) getActivity()).setSupportActionBar(binding.toolBar);
         setUpRecycler();
         user = OSPreferences.getInstance(getContext().getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
-        mMyOrderChangeListener = FirebaseFirestore.getInstance().collection(getString(R.string.ref_order))
-                .whereEqualTo(FieldPath.of(getString(R.string.field_customer), getString(R.string.field_user_id)), user.getUserId())
+        mMyOrderChangeListener = FirebaseFirestore.getInstance().collection(OSString.refOrder)
+                .whereEqualTo(FieldPath.of(OSString.fieldCustomer, OSString.fieldUserId), user.getUserId())
                 .addSnapshotListener(this::onEvent);
         return binding.getRoot();
     }
@@ -86,7 +87,7 @@ public class MyOrderFragment extends Fragment {
         UnSupportedContent unSupportedContent = new UnSupportedContent(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME, user.getUserId(), MyOrderFragment.class.getName());
         for (DocumentSnapshot doc : documents) {
             try {
-                OrderStatus status = OrderStatus.valueOf(doc.getString(getString(R.string.field_status)));
+                OrderStatus status = OrderStatus.valueOf(doc.getString(OSString.fieldStatus));
                 if (status == OrderStatus.CANCELED || status == OrderStatus.DELIVERED) {
                     OSOldOrder order = doc.toObject(OSOldOrder.class);
                     assert order != null;

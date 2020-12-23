@@ -4,8 +4,8 @@ import android.util.Log;
 
 import com.crown.library.onspotlibrary.controller.OSPreferences;
 import com.crown.library.onspotlibrary.model.user.UserOS;
+import com.crown.library.onspotlibrary.utils.OSString;
 import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
-import com.crown.onspot.R;
 import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,7 +36,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     private void sendDeviceToken(String token) {
         UserOS user = OSPreferences.getInstance(getApplicationContext()).getObject(OSPreferenceKey.USER, UserOS.class);
         if (user == null) return;
-        FirebaseFirestore.getInstance().collection(getString(R.string.ref_user)).document(user.getUserId()).update(getString(R.string.field_device_token), FieldValue.arrayUnion(token));
+        FirebaseFirestore.getInstance().collection(OSString.refUser).document(user.getUserId()).update(OSString.fieldDeviceToken, FieldValue.arrayUnion(token));
     }
 
     /*private void sendNotification(String messageBody) {

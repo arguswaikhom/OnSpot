@@ -250,7 +250,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
         OSOrderUpload orderUpload = createOrder();
         if (orderUpload == null) return;
         loadingBounce.show();
-        FirebaseFirestore.getInstance().collection(getString(R.string.ref_order)).add(orderUpload).addOnSuccessListener(result -> {
+        FirebaseFirestore.getInstance().collection(OSString.refOrder).add(orderUpload).addOnSuccessListener(result -> {
             loadingBounce.dismiss();
             Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
             finish();

@@ -181,9 +181,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
             loadingDialog.dismiss();
             try {
                 JSONObject obj = new JSONObject(response);
-                customer = gson.fromJson(OSJsonParse.stringFromObject(obj, getString(R.string.field_customer)), UserV3.class);
-                business = gson.fromJson(OSJsonParse.stringFromObject(obj, getString(R.string.ref_business)), BusinessV2a.class);
-                JSONArray itemsJson = OSJsonParse.arrayFromObject(obj, getString(R.string.field_items));
+                customer = gson.fromJson(OSJsonParse.stringFromObject(obj, OSString.fieldCustomer), UserV3.class);
+                business = gson.fromJson(OSJsonParse.stringFromObject(obj, OSString.refBusiness), BusinessV2a.class);
+                JSONArray itemsJson = OSJsonParse.arrayFromObject(obj, OSString.refItem);
                 for (int i = 0; i < itemsJson.length(); i++) {
                     try {
                         BusinessItemV4 businessItemV4 = gson.fromJson(itemsJson.get(i) + "", BusinessItemV4.class);
@@ -216,7 +216,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> param = new HashMap<>();
-                param.put(getString(R.string.field_order_id), order.getOrderId());
+                param.put(OSString.fieldOrderId, order.getOrderId());
                 return param;
             }
         });
