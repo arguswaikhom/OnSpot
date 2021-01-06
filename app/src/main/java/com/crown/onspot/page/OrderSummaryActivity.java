@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class OrderSummaryActivity extends AppCompatActivity implements OnReceiveOSBroadcasts {
+    public static final String TAG = OrderSummaryActivity.class.getName();
     public static final String CART = "CART";
     public static final String BUSINESS = "BUSINESS";
     private IntentFilter mIntentFilter;
@@ -203,6 +205,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
         }
 
         double distance = OSLocationUtils.getDistance(business.getLocation(), user.getLocation());
+        Log.d(TAG, "Distance b/w buss and user: " + distance);
         if (distance > business.getDeliveryRange()) {
             // Distance between business location and customer's delivery location is more than the business delivery range
             showInfoBanner(getString(R.string.msg_info_no_hod_in_selected_location));
@@ -226,7 +229,7 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
 
         if (sc.getFreeShippingPrice() != null) {
             // Business has free shipping charge offer based on the order final price
-            String freeShippingInfo = String.format(Locale.ENGLISH, "Free delivery with order more than ₹ %d", sc.getFreeShippingPrice());
+            String freeShippingInfo = String.format(Locale.ENGLISH, "Free delivery with \"Product cost\" more than ₹ %d", sc.getFreeShippingPrice());
             showInfoBanner(freeShippingInfo);
             if (itemCost >= sc.getFreeShippingPrice()) return;
         }
@@ -315,9 +318,9 @@ public class OrderSummaryActivity extends AppCompatActivity implements OnReceive
             totalTax += BusinessItemUtils.getTaxAmount(item.getPrice()) * quantity;
             double itemFinalAmount = BusinessItemUtils.getFinalPrice(item.getPrice()) * quantity;
             finalAmount += itemFinalAmount;
-            binding.ordersOiv.addChild(quantity, item.getItemName(), (int) itemFinalAmount);
+            binding.ordersOiv.addChild(quantity, item.getItemName(), ((int) (long) item.getPrice().getPrice()) * quantity);
         }
-        binding.summaryInclude.itemCostTv.setText(String.format(Locale.ENGLISH, "%s%d", OSString.inrSymbol, itemCost));
+        binding.summaryInclude.productCostTv.setText(String.format(Locale.ENGLISH, "%s%d", OSString.inrSymbol, itemCost));
         binding.summaryInclude.taxTv.setText(String.format(Locale.ENGLISH, "+ %s%d", OSString.inrSymbol, totalTax));
         binding.summaryInclude.discountTv.setText(String.format(Locale.ENGLISH, "- %s%d", OSString.inrSymbol, (itemCost + totalTax) - finalAmount));
     }

@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.crown.library.onspotlibrary.controller.OSPreferences;
 import com.crown.library.onspotlibrary.controller.OSVolley;
-import com.crown.library.onspotlibrary.model.OSPrice;
 import com.crown.library.onspotlibrary.model.OrderStatusRecord;
 import com.crown.library.onspotlibrary.model.business.BusinessV2a;
 import com.crown.library.onspotlibrary.model.businessItem.BusinessItemV4;
@@ -27,7 +26,6 @@ import com.crown.library.onspotlibrary.model.user.UserOS;
 import com.crown.library.onspotlibrary.model.user.UserV3;
 import com.crown.library.onspotlibrary.page.BusinessActivity;
 import com.crown.library.onspotlibrary.page.BusinessReviewActivity;
-import com.crown.library.onspotlibrary.utils.BusinessItemUtils;
 import com.crown.library.onspotlibrary.utils.OSCommonIntents;
 import com.crown.library.onspotlibrary.utils.OSJsonParse;
 import com.crown.library.onspotlibrary.utils.OSMessage;
@@ -39,7 +37,6 @@ import com.crown.library.onspotlibrary.utils.emun.OSPreferenceKey;
 import com.crown.library.onspotlibrary.utils.emun.OrderStatus;
 import com.crown.library.onspotlibrary.views.LoadingBounceDialog;
 import com.crown.library.onspotlibrary.views.OrderPassView;
-import com.crown.onspot.R;
 import com.crown.onspot.databinding.ActivityOrderDetailsBinding;
 import com.crown.onspot.view.ImageSliderAdapter;
 import com.google.gson.Gson;
@@ -183,7 +180,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 JSONObject obj = new JSONObject(response);
                 customer = gson.fromJson(OSJsonParse.stringFromObject(obj, OSString.fieldCustomer), UserV3.class);
                 business = gson.fromJson(OSJsonParse.stringFromObject(obj, OSString.refBusiness), BusinessV2a.class);
-                JSONArray itemsJson = OSJsonParse.arrayFromObject(obj, OSString.refItem);
+                JSONArray itemsJson = OSJsonParse.arrayFromObject(obj, OSString.fieldItems);
                 for (int i = 0; i < itemsJson.length(); i++) {
                     try {
                         BusinessItemV4 businessItemV4 = gson.fromJson(itemsJson.get(i) + "", BusinessItemV4.class);
@@ -255,20 +252,20 @@ public class OrderDetailsActivity extends AppCompatActivity {
             Glide.with(this).load(delivery.getProfileImageUrl()).apply(new RequestOptions().circleCrop()).into(binding.deliveryInclude.deliveryImageIv);
         }
 
-        int itemCost = 0;
-        int totalTax = 0;
         for (OSCartLite item : order.getItems()) {
-            OSPrice price = item.getPrice();
-            itemCost += price.getPrice() * item.getQuantity();
-            totalTax += BusinessItemUtils.getTaxAmount(price) * item.getQuantity();
-            binding.orderInclude.orderItemOiv.addChild((int) (long) item.getQuantity(), item.getItemName(), (int) (item.getQuantity() * BusinessItemUtils.getFinalPrice(item.getPrice())));
+            binding.orderInclude.orderItemOiv.addChild((int) (long) item.getQuantity(), item.getItemName(), (int) (item.getPrice().getPrice() * item.getQuantity()));
         }
 
-        String inr = getString(R.string.inr);
-        binding.orderInclude.itemCostTv.setText(String.format(Locale.ENGLISH, "%s%d", inr, itemCost));
-        binding.orderInclude.taxTv.setText(String.format(Locale.ENGLISH, "+ %s%d", inr, totalTax));
-        binding.orderInclude.discountTv.setText(String.format(Locale.ENGLISH, "- %s%d", inr, (itemCost + totalTax) - order.getFinalPrice()));
-        binding.orderInclude.finalPriceTv.setText(String.format(Locale.ENGLISH, "%s%d", inr, order.getFinalPrice()));
+        binding.orderInclude.summaryInclude.productCostTv.setText(String.format(Locale.ENGLISH, "%s%d", OSString.inrSymbol, order.getProductPrice()));
+        binding.orderInclude.summaryInclude.taxTv.setText(String.format(Locale.ENGLISH, "+ %s%d", OSString.inrSymbol, order.getTotalTax()));
+        binding.orderInclude.summaryInclude.discountTv.setText(String.format(Locale.ENGLISH, "- %s%d", OSString.inrSymbol, order.getTotalDiscount()));
+        binding.orderInclude.summaryInclude.finalPriceTv.setText(String.format(Locale.ENGLISH, "%s%d", OSString.inrSymbol, order.getFinalPrice()));
+        if (order.getHodAvailable() != null && order.getHodAvailable()) {
+            binding.orderInclude.summaryInclude.deliveryChargeTv.setText(String.format(Locale.ENGLISH, "%s%d", OSString.inrSymbol, order.getShippingCharge()));
+        } else {
+            binding.orderInclude.summaryInclude.deliveryChargeLabel.setVisibility(View.GONE);
+            binding.orderInclude.summaryInclude.deliveryChargeTv.setVisibility(View.GONE);
+        }
 
         List<OrderStatusRecord> statusRecords = order.getStatusRecord();
         binding.timeline.setPrePath(order.getStatus() != OrderStatus.CANCELED && order.getStatus() != OrderStatus.DELIVERED);

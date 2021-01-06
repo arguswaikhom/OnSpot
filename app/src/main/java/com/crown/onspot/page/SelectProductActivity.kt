@@ -34,6 +34,8 @@ class SelectProductActivity : AppCompatActivity() {
         const val BUSINESS_ID = "BUSINESS_ID"
     }
 
+    private var minOrder: Long = 0
+    private var totalAmount = 0.0
     private lateinit var user: UserOS
     private var bussId: String? = null
     private lateinit var productViewModel: SelectProductViewModel
@@ -202,6 +204,13 @@ class SelectProductActivity : AppCompatActivity() {
                 // Let the user know that home delivery is not available for this business
                 if (hod == null || !hod) binding.hodNotAvailableTv.visibility = View.VISIBLE
 
+                // If the user has minimum order price; display it
+                minOrder = doc.get(OSString.fieldMinOrder) as Long
+                if (minOrder != 0L) {
+                    binding.minOrderPriceTv.visibility = View.VISIBLE
+                    binding.minOrderPriceTv.text = String.format("Minimum order %s %s", OSString.inrSymbol, minOrder)
+                }
+
                 // Get products
                 productListener = FirebaseFirestore.getInstance().collection(OSString.refItem)
                         .whereEqualTo(OSString.fieldBusinessRefId, bussId)
@@ -245,7 +254,7 @@ class SelectProductActivity : AppCompatActivity() {
      */
     private fun updateSummary() {
         val cart = getCart()
-        var totalAmount = 0.0
+        totalAmount = 0.0
         var totalSelectedQuantity = 0
         val totalSelectedProducts = cart.size
 
@@ -285,8 +294,13 @@ class SelectProductActivity : AppCompatActivity() {
         if (OSListUtils.isEmpty(cart)) {
             OSMessage.showSToast(this, getString(R.string.msg_select_product))
             return
-        } else if (cart.size > 10) {
+        }
+        if (cart.size > 10) {
             OSMessage.showSToast(this, getString(R.string.msg_max_10_product))
+            return
+        }
+        if (minOrder > totalAmount) {
+            OSMessage.showSToast(this, String.format("Minimum order %s %s", OSString.inrSymbol, minOrder))
             return
         }
         val intent = Intent(this, OrderSummaryActivity::class.java)

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -13,74 +11,7 @@
 
     <View style="@style/GrayVerticalDivider" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Item cost: "
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/item_cost_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="₹ 270" />
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Total tax: "
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-        <TextView
-            android:id="@+id/tax_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@+id/item_cost_tv"
-            app:layout_constraintTop_toBottomOf="@+id/item_cost_tv"
-            tools:text="₹ 270" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Discount: "
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-        <TextView
-            android:id="@+id/discount_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@+id/tax_tv"
-            app:layout_constraintTop_toBottomOf="@+id/tax_tv"
-            tools:text="₹ 270" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="Final price: "
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-        <TextView
-            android:id="@+id/final_price_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            app:layout_constraintEnd_toEndOf="@+id/discount_tv"
-            app:layout_constraintTop_toBottomOf="@+id/discount_tv"
-            tools:text="₹ 270" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/summary_include"
+        layout="@layout/sub_order_summary_price_summary" />
 </LinearLayout>

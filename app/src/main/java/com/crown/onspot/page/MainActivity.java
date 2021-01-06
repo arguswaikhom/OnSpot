@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> {
             if (OSListUtils.isEmpty(user.getDeviceToken()) || !user.getDeviceToken().contains(token)) {
                 FirebaseFirestore.getInstance().collection(OSString.refUser).document(user.getUserId())
-                        .update(OSString.fieldDeviceTokenOSD, FieldValue.arrayUnion(token));
+                        .update(OSString.fieldDeviceToken, FieldValue.arrayUnion(token));
             }
         });
     }

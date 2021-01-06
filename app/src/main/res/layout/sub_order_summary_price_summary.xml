@@ -10,12 +10,12 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Item cost: "
+        android:text="Product cost: "
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/item_cost_tv"
+        android:id="@+id/product_cost_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
         android:id="@+id/tax_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@+id/item_cost_tv"
+        app:layout_constraintEnd_toEndOf="@+id/product_cost_tv"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         tools:text="₹ 270" />
 

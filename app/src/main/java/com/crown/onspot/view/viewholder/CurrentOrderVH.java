@@ -132,6 +132,8 @@ public class CurrentOrderVH extends RecyclerView.ViewHolder implements PopupMenu
             totalItems += q;
             binding.orderItemOiv.addChild(q, cart.getItemName(), itemFinalPrice * q);
         }
+        if (order.getHodAvailable())
+            binding.orderItemOiv.addChild("Delivery charge", (int) (long) order.getShippingCharge());
 
         int color = order.getStatus().getColor(context);
         if (color != 0) {
@@ -140,7 +142,7 @@ public class CurrentOrderVH extends RecyclerView.ViewHolder implements PopupMenu
         }
 
         binding.statusTv.setText(order.getStatus().getStatus());
-        // todo: implement business image loader
+        // todo: implement business image loader and make the image view visible
         // OSGlideLoader.loadUserProfileImage(context, customer.getUserId(), binding.customerImageIv);
         binding.businessNameTv.setText(Html.fromHtml("<b>" + business.getDisplayName() + "</>"));
         binding.orderTimeTv.setText(Html.fromHtml(OSTimeUtils.getTime(order.getOrderedAt().getSeconds()) + ", " + OSTimeUtils.getDay(order.getOrderedAt().getSeconds())));

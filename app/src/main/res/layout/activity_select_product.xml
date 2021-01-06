@@ -36,6 +36,16 @@
         android:text="@string/msg_info_no_hod_business"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/min_order_price_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:background="@color/colorAccent"
+        android:padding="8dp"
+        android:visibility="gone"
+        tools:text="Minimum order $ 400" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
