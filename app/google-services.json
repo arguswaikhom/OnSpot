@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "974539191120",
+    "firebase_url": "https://bicrowny-onspotshop-default-rtdb.firebaseio.com",
+    "project_id": "bicrowny-onspotshop",
+    "storage_bucket": "bicrowny-onspotshop.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:974539191120:android:3f2ae07631da44afcb3255",
+        "android_client_info": {
+          "package_name": "com.crown.onspot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "974539191120-nqvmttoc5kcdg3s8g8onbh7m4uufsd2m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-D-PJbl5OW62T2IUKkJCeArIG7PrQOlE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "974539191120-nqvmttoc5kcdg3s8g8onbh7m4uufsd2m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
